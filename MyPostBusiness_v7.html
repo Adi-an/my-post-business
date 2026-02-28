@@ -1,0 +1,1857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyPost Business — Parcel Manager</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Nunito:wght@400;500;600;700&display=swap');
+
+:root {
+  --saffron:#E8620A;--saffron2:#FF8533;--saffron-pale:#FFF4EC;
+  --green:#16A34A;--green-pale:#F0FDF4;
+  --blue:#1D4ED8;--blue-pale:#EFF6FF;
+  --red:#DC2626;--red-pale:#FEF2F2;
+  --amber:#D97706;--amber-pale:#FFFBEB;
+  --ink:#0F172A;--mid:#475569;--muted:#94A3B8;
+  --border:#E2E8F0;--surface:#F8FAFC;--white:#FFFFFF;
+  --shadow:0 1px 3px rgba(0,0,0,.1),0 1px 2px rgba(0,0,0,.06);
+  --shadow-md:0 4px 6px rgba(0,0,0,.07),0 2px 4px rgba(0,0,0,.06);
+  --shadow-lg:0 10px 15px rgba(0,0,0,.08),0 4px 6px rgba(0,0,0,.05);
+  --radius:12px;--radius-sm:8px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;font-family:'Nunito',sans-serif;background:var(--surface);color:var(--ink);}
+
+/* ─── LAYOUT ─── */
+.app{display:flex;height:100vh;overflow:hidden;}
+.sidebar{width:220px;background:var(--ink);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;}
+.main{flex:1;overflow-y:auto;display:flex;flex-direction:column;}
+
+/* ─── SIDEBAR ─── */
+.brand{padding:20px 16px 16px;border-bottom:1px solid rgba(255,255,255,.08);}
+.brand-logo{display:flex;align-items:center;gap:10px;}
+.brand-icon{width:38px;height:38px;background:var(--saffron);border-radius:10px;display:grid;place-items:center;font-size:20px;}
+.brand-name{font-family:'Poppins',sans-serif;font-size:16px;font-weight:700;color:#fff;line-height:1.1;}
+.brand-sub{font-size:11px;color:rgba(255,255,255,.4);margin-top:1px;}
+.nav{padding:12px 8px;flex:1;}
+.nav-section{font-size:10px;font-weight:700;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:1px;padding:8px 8px 4px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--radius-sm);cursor:pointer;color:rgba(255,255,255,.6);font-size:13.5px;font-weight:600;transition:all .18s;margin-bottom:2px;border:none;background:none;width:100%;text-align:left;}
+.nav-item:hover{background:rgba(255,255,255,.07);color:#fff;}
+.nav-item.active{background:var(--saffron);color:#fff;}
+.nav-item .ni-icon{font-size:16px;width:20px;text-align:center;}
+.nav-badge{margin-left:auto;background:var(--saffron2);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:100px;min-width:20px;text-align:center;}
+.nav-item.active .nav-badge{background:rgba(255,255,255,.3);}
+
+/* ─── MAIN HEADER ─── */
+.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.topbar-title{font-family:'Poppins',sans-serif;font-size:20px;font-weight:700;color:var(--ink);}
+.topbar-sub{font-size:12px;color:var(--muted);margin-top:1px;}
+.btn-primary{background:var(--saffron);color:#fff;border:none;padding:9px 18px;border-radius:var(--radius-sm);font-weight:700;font-size:13.5px;font-family:'Nunito',sans-serif;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:all .18s;}
+.btn-primary:hover{background:#C7520A;transform:translateY(-1px);box-shadow:var(--shadow-md);}
+.btn-secondary{background:var(--surface);color:var(--ink);border:1.5px solid var(--border);padding:8px 16px;border-radius:var(--radius-sm);font-weight:600;font-size:13px;font-family:'Nunito',sans-serif;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:all .18s;}
+.btn-secondary:hover{border-color:var(--saffron);color:var(--saffron);}
+.btn-green{background:var(--green);color:#fff;border:none;padding:9px 18px;border-radius:var(--radius-sm);font-weight:700;font-size:13.5px;font-family:'Nunito',sans-serif;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:all .18s;}
+.btn-green:hover{background:#15803D;}
+.btn-wa{background:#25D366;color:#fff;border:none;padding:9px 18px;border-radius:var(--radius-sm);font-weight:700;font-size:13.5px;font-family:'Nunito',sans-serif;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:all .18s;}
+.btn-wa:hover{background:#1EB857;}
+.btn-red{background:var(--red);color:#fff;border:none;padding:8px 14px;border-radius:var(--radius-sm);font-weight:700;font-size:12.5px;font-family:'Nunito',sans-serif;cursor:pointer;transition:all .18s;}
+.btn-red:hover{background:#B91C1C;}
+
+/* ─── CONTENT AREA ─── */
+.content{padding:24px;flex:1;}
+.page{display:none;}
+.page.active{display:block;}
+
+/* ─── CARDS ─── */
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px;box-shadow:var(--shadow);}
+.card-title{font-family:'Poppins',sans-serif;font-size:15px;font-weight:700;color:var(--ink);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+
+/* ─── STATS ─── */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin-bottom:20px;}
+.stat-box{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);position:relative;overflow:hidden;}
+.stat-box::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;}
+.stat-box.s1::after{background:var(--saffron);}
+.stat-box.s2::after{background:var(--amber);}
+.stat-box.s3::after{background:var(--blue);}
+.stat-box.s4::after{background:var(--green);}
+.stat-num{font-family:'Poppins',sans-serif;font-size:30px;font-weight:800;line-height:1;}
+.stat-lbl{font-size:12px;color:var(--muted);font-weight:600;margin-top:5px;}
+.stat-icon{font-size:28px;margin-bottom:6px;}
+
+/* ─── ORDER PIPELINE ─── */
+.pipeline{display:flex;align-items:center;gap:0;margin:0 0 20px;}
+.step{display:flex;align-items:center;flex:1;}
+.step-dot{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-size:14px;font-weight:700;flex-shrink:0;border:2px solid var(--border);background:var(--surface);color:var(--muted);position:relative;z-index:1;}
+.step-dot.done{background:var(--green);border-color:var(--green);color:#fff;}
+.step-dot.active{background:var(--saffron);border-color:var(--saffron);color:#fff;box-shadow:0 0 0 4px rgba(232,98,10,.15);}
+.step-line{flex:1;height:3px;background:var(--border);}
+.step-line.done{background:var(--green);}
+.step-label{position:absolute;top:38px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:10px;font-weight:700;color:var(--muted);}
+.step-label.active-lbl{color:var(--saffron);}
+.step-label.done-lbl{color:var(--green);}
+.pipeline-wrap{position:relative;padding-bottom:28px;margin-bottom:8px;}
+.step-dot{position:relative;}
+
+/* ─── ORDER CARDS ─── */
+.order-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin-bottom:12px;box-shadow:var(--shadow);cursor:pointer;transition:all .18s;border-left:4px solid var(--border);}
+.order-card:hover{box-shadow:var(--shadow-lg);transform:translateY(-1px);}
+.order-card.new{border-left-color:var(--saffron);}
+.order-card.packed{border-left-color:var(--amber);}
+.order-card.dispatched{border-left-color:var(--blue);}
+.order-card.delivered{border-left-color:var(--green);}
+.order-card.confirmed{border-left-color:#7C3AED;}
+.oc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;}
+.oc-name{font-family:'Poppins',sans-serif;font-size:15px;font-weight:700;color:var(--ink);}
+.oc-phone{font-size:12px;color:var(--muted);margin-top:2px;}
+.oc-article{font-family:monospace;font-weight:700;font-size:13px;color:var(--blue);margin-top:6px;background:var(--blue-pale);padding:3px 8px;border-radius:6px;display:inline-block;}
+.oc-steps{display:flex;gap:4px;margin-top:10px;flex-wrap:wrap;}
+.step-chip{font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:100px;background:var(--surface);color:var(--muted);border:1px solid var(--border);}
+.step-chip.done{background:var(--green-pale);color:var(--green);border-color:#BBF7D0;}
+.step-chip.current{background:var(--saffron-pale);color:var(--saffron);border-color:#FED7AA;}
+.oc-amount{font-family:'Poppins',sans-serif;font-size:17px;font-weight:800;color:var(--ink);}
+.oc-date{font-size:11px;color:var(--muted);margin-top:2px;text-align:right;}
+
+/* ─── BADGE ─── */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:100px;font-size:11.5px;font-weight:700;}
+.bg-new{background:var(--saffron-pale);color:var(--saffron);}
+.bg-packed{background:var(--amber-pale);color:var(--amber);}
+.bg-dispatched{background:var(--blue-pale);color:var(--blue);}
+.bg-delivered{background:var(--green-pale);color:var(--green);}
+.bg-confirmed{background:#F3E8FF;color:#7C3AED;}
+
+/* ─── FORMS ─── */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.fg-full{grid-column:1/-1;}
+@media(max-width:520px){.form-grid{grid-template-columns:1fr;}}
+.fg{display:flex;flex-direction:column;gap:5px;}
+.fg label{font-size:12px;font-weight:700;color:var(--mid);text-transform:uppercase;letter-spacing:.5px;}
+.fg input,.fg select,.fg textarea{border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:10px 13px;font-size:14px;font-family:'Nunito',sans-serif;color:var(--ink);background:var(--surface);transition:border-color .18s;outline:none;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--saffron);background:#fff;}
+.fg textarea{resize:vertical;min-height:72px;}
+
+/* ─── PHOTO UPLOAD ─── */
+.photo-upload{border:2.5px dashed var(--border);border-radius:var(--radius);padding:24px;text-align:center;background:var(--surface);cursor:pointer;transition:all .2s;position:relative;}
+.photo-upload:hover{border-color:var(--saffron);background:var(--saffron-pale);}
+.photo-upload input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.pu-icon{font-size:40px;margin-bottom:8px;}
+.pu-title{font-weight:700;font-size:14px;color:var(--mid);}
+.pu-sub{font-size:12px;color:var(--muted);margin-top:4px;}
+.photo-preview{width:100%;max-height:220px;object-fit:contain;border-radius:var(--radius-sm);margin-top:10px;display:none;border:1px solid var(--border);}
+
+/* ─── OCR STATUS ─── */
+.ocr-bar{background:var(--border);border-radius:100px;height:6px;overflow:hidden;margin:8px 0;display:none;}
+.ocr-fill{height:100%;background:linear-gradient(90deg,var(--saffron),var(--saffron2));border-radius:100px;transition:width .3s;}
+.ocr-msg{font-size:12px;color:var(--mid);font-weight:600;}
+
+/* ─── WORKFLOW DETAIL ─── */
+.wf-step{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);margin-bottom:12px;overflow:hidden;}
+.wf-header{padding:14px 18px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;}
+.wf-header:hover{background:var(--surface);}
+.wf-step-num{width:28px;height:28px;border-radius:50%;background:var(--surface);border:2px solid var(--border);display:grid;place-items:center;font-size:12px;font-weight:700;color:var(--muted);flex-shrink:0;}
+.wf-step-num.done{background:var(--green);border-color:var(--green);color:#fff;}
+.wf-step-num.active{background:var(--saffron);border-color:var(--saffron);color:#fff;}
+.wf-title{font-family:'Poppins',sans-serif;font-size:14px;font-weight:700;margin-left:10px;}
+.wf-body{padding:18px;border-top:1px solid var(--border);display:none;}
+.wf-body.open{display:block;}
+
+/* ─── BILL ─── */
+.bill{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:28px;font-family:'Nunito',sans-serif;}
+.bill-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;}
+.bill-biz{font-family:'Poppins',sans-serif;font-size:22px;font-weight:800;color:var(--saffron);}
+.bill-biz-sub{font-size:12px;color:var(--muted);margin-top:3px;}
+.bill-tag{text-align:right;}
+.bill-tag-title{font-family:'Poppins',sans-serif;font-size:20px;font-weight:800;color:var(--ink);}
+.bill-num{font-size:12px;color:var(--muted);}
+.bill-divider{border:none;border-top:2px dashed var(--border);margin:16px 0;}
+.bill-to{margin-bottom:16px;}
+.bill-to-name{font-size:17px;font-weight:700;}
+.bill-photos{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0;}
+.bill-photo-box{border:1px solid var(--border);border-radius:8px;overflow:hidden;text-align:center;}
+.bill-photo-label{font-size:11px;font-weight:700;color:var(--muted);padding:6px;background:var(--surface);text-transform:uppercase;letter-spacing:.5px;}
+.bill-photo-box img{width:100%;max-height:160px;object-fit:contain;}
+.bill-table{width:100%;border-collapse:collapse;margin:16px 0;}
+.bill-table th{background:var(--ink);color:#fff;padding:10px 12px;text-align:left;font-size:13px;}
+.bill-table td{padding:10px 12px;border-bottom:1px solid var(--border);font-size:14px;}
+.bill-total{text-align:right;margin-top:12px;}
+.bill-total-label{font-size:14px;color:var(--mid);}
+.bill-total-value{font-family:'Poppins',sans-serif;font-size:26px;font-weight:800;color:var(--saffron);}
+.bill-article{font-family:monospace;font-size:15px;font-weight:700;color:var(--blue);letter-spacing:1px;}
+.bill-footer{text-align:center;margin-top:20px;padding-top:16px;border-top:1px solid var(--border);font-size:12px;color:var(--muted);}
+
+/* ─── WHATSAPP MSGS ─── */
+.wa-msg{background:#E7FFDB;border:1px solid #C3E6C3;border-radius:var(--radius-sm);padding:14px;margin-bottom:10px;font-size:13.5px;line-height:1.7;position:relative;cursor:pointer;}
+.wa-msg:hover{background:#D5F7C5;}
+.wa-from{font-size:11px;font-weight:700;color:#128C7E;margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px;}
+.wa-copy-hint{position:absolute;top:10px;right:10px;font-size:11px;color:var(--muted);background:rgba(255,255,255,.8);padding:2px 6px;border-radius:4px;}
+.wa-phone-input{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;margin-top:12px;}
+.wa-phone-input .fg{flex:1;min-width:180px;}
+
+/* ─── SEARCH ─── */
+.search-wrap{position:relative;margin-bottom:14px;}
+.search-wrap input{width:100%;border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px 10px 36px;font-size:14px;font-family:'Nunito',sans-serif;outline:none;background:var(--white);transition:border-color .18s;}
+.search-wrap input:focus{border-color:var(--saffron);}
+.search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:16px;pointer-events:none;}
+
+/* ─── MODAL ─── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:none;align-items:flex-end;justify-content:center;padding:0;}
+.overlay.open{display:flex;}
+.modal{background:#fff;border-radius:20px 20px 0 0;padding:24px;width:100%;max-width:600px;max-height:92vh;overflow-y:auto;box-shadow:0 -8px 40px rgba(0,0,0,.15);}
+.modal-handle{width:40px;height:4px;background:var(--border);border-radius:100px;margin:0 auto 16px;}
+.modal-title{font-family:'Poppins',sans-serif;font-size:18px;font-weight:700;margin-bottom:16px;}
+
+/* ─── ALERTS ─── */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--ink);color:#fff;padding:12px 20px;border-radius:var(--radius-sm);font-weight:700;font-size:14px;z-index:999;display:none;box-shadow:var(--shadow-lg);max-width:320px;}
+.toast.show{display:flex;align-items:center;gap:10px;}
+.toast.success{background:var(--green);}
+.toast.error{background:var(--red);}
+
+/* ─── EMPTY ─── */
+.empty{text-align:center;padding:48px 24px;color:var(--muted);}
+.empty-icon{font-size:52px;margin-bottom:12px;}
+.empty-title{font-family:'Poppins',sans-serif;font-size:16px;font-weight:700;color:var(--mid);}
+.empty-sub{font-size:13px;margin-top:5px;}
+
+/* ─── DETAIL OVERLAY ─── */
+.detail-overlay{position:fixed;inset:0;background:var(--surface);z-index:100;overflow-y:auto;display:none;}
+.detail-overlay.open{display:block;}
+.detail-topbar{background:var(--ink);padding:14px 20px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:101;}
+.back-btn{background:rgba(255,255,255,.1);border:none;color:#fff;width:36px;height:36px;border-radius:8px;cursor:pointer;font-size:18px;display:grid;place-items:center;transition:background .18s;}
+.back-btn:hover{background:rgba(255,255,255,.2);}
+.detail-title{font-family:'Poppins',sans-serif;font-size:16px;font-weight:700;color:#fff;}
+.detail-sub{font-size:12px;color:rgba(255,255,255,.5);margin-top:1px;}
+
+/* ─── PRINT ─── */
+@media print{
+  .app{display:block;}
+  .sidebar,.detail-topbar,.topbar,.no-print{display:none!important;}
+  .detail-overlay{position:static;background:#fff;}
+  .bill{box-shadow:none;border:none;}
+}
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:640px){
+  .sidebar{display:none;}
+  .app{display:block;}
+  .main{height:100vh;}
+  .mobile-nav{display:flex!important;}
+}
+.mobile-nav{display:none;background:var(--white);border-top:1px solid var(--border);padding:8px 4px;position:fixed;bottom:0;left:0;right:0;z-index:50;justify-content:space-around;}
+.mn-item{display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:6px 12px;border-radius:var(--radius-sm);border:none;background:none;color:var(--muted);font-size:10px;font-weight:700;font-family:'Nunito',sans-serif;transition:color .18s;}
+.mn-item.active{color:var(--saffron);}
+.mn-item-icon{font-size:20px;}
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+
+<!-- ═══ SIDEBAR ═══ -->
+<aside class="sidebar">
+  <div class="brand">
+    <div class="brand-logo">
+      <div class="brand-icon">📦</div>
+      <div>
+        <div class="brand-name">MyPost Biz</div>
+        <div class="brand-sub">Parcel Manager</div>
+      </div>
+    </div>
+  </div>
+  <nav class="nav">
+    <div class="nav-section">Main</div>
+    <button class="nav-item active" onclick="goPage('dashboard')"><span class="ni-icon">🏠</span> Dashboard</button>
+    <button class="nav-item" onclick="goPage('new-order')"><span class="ni-icon">➕</span> New Order</button>
+    <button class="nav-item" onclick="goPage('orders')"><span class="ni-icon">📋</span> All Orders <span class="nav-badge" id="sb-count">0</span></button>
+    <div class="nav-section">Tools</div>
+    <button class="nav-item" onclick="goPage('whatsapp')"><span class="ni-icon">💬</span> WhatsApp</button>
+    <button class="nav-item" onclick="goPage('settings')"><span class="ni-icon">⚙️</span> Settings</button>
+  </nav>
+  <div style="padding:12px 8px;border-top:1px solid rgba(255,255,255,.07);">
+    <div style="font-size:11px;color:rgba(255,255,255,.25);padding:6px 8px;">All data saved on this device</div>
+  </div>
+</aside>
+
+<!-- ═══ MAIN ═══ -->
+<main class="main">
+
+<!-- Dashboard -->
+<div id="page-dashboard" class="page active">
+  <div class="topbar">
+    <div>
+      <div class="topbar-title">Dashboard</div>
+      <div class="topbar-sub" id="today-str">Loading...</div>
+    </div>
+    <button class="btn-primary" onclick="goPage('new-order')">➕ New Order</button>
+  </div>
+  <div class="content">
+    <div class="stats-row">
+      <div class="stat-box s1"><div class="stat-icon">📦</div><div class="stat-num" id="ds-total">0</div><div class="stat-lbl">Total Orders</div></div>
+      <div class="stat-box s2"><div class="stat-icon">🚚</div><div class="stat-num" id="ds-transit">0</div><div class="stat-lbl">In Transit</div></div>
+      <div class="stat-box s3"><div class="stat-icon">✅</div><div class="stat-num" id="ds-delivered">0</div><div class="stat-lbl">Delivered</div></div>
+      <div class="stat-box s4"><div class="stat-icon">💰</div><div class="stat-num" id="ds-revenue">₹0</div><div class="stat-lbl">Total Revenue</div></div>
+    </div>
+
+    <!-- Needs Action -->
+    <div class="card" id="needs-action-card" style="border-left:4px solid var(--saffron);">
+      <div class="card-title" style="color:var(--saffron);">⚡ Needs Your Action</div>
+      <div id="needs-action-list"><div class="empty"><div class="empty-icon">🎉</div><div class="empty-title">All caught up!</div><div class="empty-sub">No pending actions right now.</div></div></div>
+    </div>
+
+    <!-- Recent Orders -->
+    <div class="card">
+      <div class="card-title">📋 Recent Orders</div>
+      <div id="recent-list"><div class="empty"><div class="empty-icon">📭</div><div class="empty-title">No orders yet</div><div class="empty-sub">Tap "New Order" to get started!</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- New Order -->
+<div id="page-new-order" class="page">
+  <div class="topbar">
+    <div><div class="topbar-title">➕ New Order</div><div class="topbar-sub">Photo → auto-fill → save. That's it!</div></div>
+  </div>
+  <div class="content">
+
+    <!-- TIP BOX -->
+    <div style="background:linear-gradient(135deg,#FFF7ED,#FFF);border:1.5px solid #FED7AA;border-radius:var(--radius);padding:14px 16px;margin-bottom:16px;display:flex;gap:12px;align-items:flex-start;">
+      <span style="font-size:24px;flex-shrink:0;">💡</span>
+      <div>
+        <div style="font-weight:700;font-size:14px;color:#7C2D12;">Take photo of the address box on parcel</div>
+        <div style="font-size:12.5px;color:#92400E;margin-top:3px;">We will try to <b>automatically read</b> the name, phone &amp; address from the photo. Even if it doesn't work — just type manually below!</div>
+      </div>
+    </div>
+
+    <!-- SINGLE CARD - Everything in one place -->
+    <div class="card">
+
+      <!-- ── PHOTO SECTION ── -->
+      <div style="margin-bottom:20px;">
+        <div style="font-weight:700;font-size:15px;color:var(--ink);margin-bottom:10px;display:flex;align-items:center;gap:8px;">
+          <span style="background:var(--saffron);color:#fff;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800;flex-shrink:0;">1</span>
+          📸 Take / Upload Parcel Photo
+        </div>
+
+        <!-- Camera / Upload Row -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div onclick="document.getElementById('no-photo-input').click()"
+               style="border:2px dashed var(--saffron);border-radius:10px;padding:18px 8px;text-align:center;cursor:pointer;background:var(--saffron-pale);">
+            <div style="font-size:30px;">🖼️</div>
+            <div style="font-weight:700;font-size:13px;color:var(--saffron);margin-top:6px;">Upload Photo</div>
+            <div style="font-size:11px;color:var(--muted);">From gallery</div>
+          </div>
+          <div onclick="startNewOrderCam()"
+               style="border:2px dashed #94A3B8;border-radius:10px;padding:18px 8px;text-align:center;cursor:pointer;background:var(--surface);">
+            <div style="font-size:30px;">📷</div>
+            <div style="font-weight:700;font-size:13px;color:var(--ink);margin-top:6px;">Open Camera</div>
+            <div style="font-size:11px;color:var(--muted);">Live capture</div>
+          </div>
+        </div>
+        <input type="file" id="no-photo-input" accept="image/*" capture="environment" style="display:none" onchange="handleNewOrderPhoto(event)">
+
+        <!-- Camera view -->
+        <video id="no-cam-video" autoplay playsinline
+               style="display:none;width:100%;border-radius:10px;margin-top:10px;max-height:240px;object-fit:cover;"></video>
+        <div style="text-align:center;margin-top:6px;display:flex;gap:8px;justify-content:center;">
+          <button id="no-cam-capture" onclick="captureNewOrderCam()" style="display:none;" class="btn-primary">🔴 Capture</button>
+          <button id="no-cam-stop" onclick="stopNewOrderCam()" style="display:none;" class="btn-red">⏹ Stop</button>
+        </div>
+
+        <!-- Photo preview + OCR status -->
+        <div id="no-photo-preview-wrap" style="display:none;margin-top:10px;">
+          <img id="no-photo-preview" alt="Parcel photo"
+               style="width:100%;max-height:180px;object-fit:contain;border-radius:10px;border:2px solid var(--border);">
+          <!-- OCR progress -->
+          <div id="no-ocr-wrap" style="margin-top:10px;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+              <div id="no-ocr-icon" style="font-size:16px;">🤖</div>
+              <div id="no-ocr-msg" style="font-size:13px;font-weight:600;color:var(--mid);flex:1;"></div>
+            </div>
+            <div style="background:var(--border);border-radius:100px;height:6px;overflow:hidden;">
+              <div id="no-ocr-bar" style="height:100%;background:linear-gradient(90deg,var(--saffron),var(--saffron2));border-radius:100px;transition:width .3s;width:0%;"></div>
+            </div>
+          </div>
+          <!-- Auto-filled notice -->
+          <div id="no-autofill-notice" style="display:none;margin-top:8px;background:var(--green-pale);border:1px solid #86EFAC;border-radius:8px;padding:10px 12px;font-size:13px;color:#14532D;font-weight:600;">
+            ✅ Details auto-filled from photo! Please check and correct if needed.
+          </div>
+          <!-- Change photo link -->
+          <div style="text-align:right;margin-top:6px;">
+            <button onclick="clearNewOrderPhoto()" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;text-decoration:underline;">🗑 Remove photo</button>
+          </div>
+        </div>
+      </div>
+
+      <hr style="border:none;border-top:1.5px dashed var(--border);margin:4px 0 18px;">
+
+      <!-- ── DETAILS SECTION ── -->
+      <div style="margin-bottom:18px;">
+        <div style="font-weight:700;font-size:15px;color:var(--ink);margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+          <span style="background:var(--blue);color:#fff;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800;flex-shrink:0;">2</span>
+          👤 Customer Details
+          <span style="font-size:12px;font-weight:500;color:var(--muted);">(auto-filled or type here)</span>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="fg">
+            <label>Name *</label>
+            <input id="no-name" type="text" placeholder="e.g. Ravi Kumar" style="font-size:15px;">
+          </div>
+          <div class="fg">
+            <label>Phone Number * <span style="font-size:11px;color:var(--muted);font-weight:400;">(for WhatsApp updates)</span></label>
+            <input id="no-phone" type="tel" placeholder="9876543210" style="font-size:15px;">
+          </div>
+          <div class="fg">
+            <label>Delivery Address *</label>
+            <textarea id="no-addr" placeholder="House no, Street, City, State, PIN" style="font-size:14px;min-height:90px;"></textarea>
+          </div>
+          <div class="fg">
+            <label>What to Send <span style="font-size:11px;color:var(--muted);font-weight:400;">(optional note)</span></label>
+            <input id="no-req" type="text" placeholder="e.g. Saree, documents, medicine...">
+          </div>
+        </div>
+      </div>
+
+      <hr style="border:none;border-top:1.5px dashed var(--border);margin:4px 0 18px;">
+
+      <!-- ── COST SECTION ── -->
+      <div style="margin-bottom:18px;">
+        <div style="font-weight:700;font-size:15px;color:var(--ink);margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+          <span style="background:var(--green);color:#fff;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800;flex-shrink:0;">3</span>
+          💰 Amount
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div class="fg">
+            <label>Item Cost (₹)</label>
+            <input id="no-item-cost" type="number" placeholder="0" inputmode="numeric" style="font-size:18px;font-weight:700;" oninput="calcNewOrderTotal()">
+          </div>
+          <div class="fg">
+            <label>Your Charge (₹)</label>
+            <input id="no-extra" type="number" placeholder="0" inputmode="numeric" style="font-size:18px;font-weight:700;" oninput="calcNewOrderTotal()">
+          </div>
+        </div>
+        <!-- Live total -->
+        <div id="no-total-preview" style="display:none;margin-top:10px;background:var(--green-pale);border:1px solid #86EFAC;border-radius:10px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;">
+          <div style="font-size:13px;color:var(--mid);font-weight:700;">Total to collect <span style="font-weight:400;font-size:11px;">(+ post charges later)</span></div>
+          <div id="no-total-display" style="font-family:'Poppins',sans-serif;font-size:24px;font-weight:800;color:var(--green);">₹0</div>
+        </div>
+      </div>
+
+      <!-- ── SAVE BUTTON ── -->
+      <button class="btn-primary" style="width:100%;justify-content:center;font-size:16px;padding:14px;border-radius:12px;" onclick="createOrder()">
+        💾 Save &amp; Start Packing →
+      </button>
+      <p style="text-align:center;font-size:12px;color:var(--muted);margin-top:10px;">🔒 Saved on your device. No internet needed.</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- All Orders -->
+<div id="page-orders" class="page">
+  <div class="topbar">
+    <div><div class="topbar-title">All Orders</div><div class="topbar-sub" id="orders-count-str">0 orders</div></div>
+    <button class="btn-primary" onclick="goPage('new-order')">➕ New</button>
+  </div>
+  <div class="content">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" placeholder="Search by name, phone, article number..." oninput="filterOrders(this.value)">
+    </div>
+    <!-- Filter chips -->
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;" id="filter-chips"></div>
+    <div id="orders-list"></div>
+  </div>
+</div>
+
+<!-- WhatsApp Page -->
+<div id="page-whatsapp" class="page">
+  <div class="topbar"><div><div class="topbar-title">💬 WhatsApp Messages</div><div class="topbar-sub">Send updates to customers</div></div></div>
+  <div class="content">
+    <div class="card">
+      <div class="card-title">📤 Send Quick Update</div>
+      <div class="form-grid">
+        <div class="fg"><label>Customer Phone</label><input id="wa-quick-phone" type="tel" placeholder="91XXXXXXXXXX"></div>
+        <div class="fg"><label>Customer Name</label><input id="wa-quick-name" type="text" placeholder="Customer Name"></div>
+        <div class="fg"><label>Article / Tracking Number</label><input id="wa-quick-track" type="text" placeholder="EW123456789IN" oninput="this.value=this.value.toUpperCase()"></div>
+        <div class="fg"><label>Expected Days</label><select id="wa-quick-days"><option value="4-5">4-5 Days</option><option value="3-4">3-4 Days</option><option value="5-7">5-7 Days</option></select></div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">
+        <button class="btn-wa" onclick="quickWA('dispatch')">🚀 Dispatch Message</button>
+        <button class="btn-wa" onclick="quickWA('track')">📍 Track Update</button>
+        <button class="btn-wa" onclick="quickWA('confirm')">✅ Ask Confirmation</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📋 Message Templates (Click to Open WhatsApp)</div>
+      <div class="wa-msg" onclick="openWA(this.querySelector('.wa-text').textContent)">
+        <div class="wa-from">📦 Order Booked</div>
+        <div class="wa-text">🎉 Namaste [NAME]!
+Your order has been packed & booked at India Post!
+📦 Article No: [ARTICLE]
+📍 Tracking: indiapost.gov.in
+⏰ Expected delivery: 4-5 working days
+Total amount: ₹[AMOUNT]
+Thank you for your trust! 🙏</div>
+        <span class="wa-copy-hint">👆 Click to Send</span>
+      </div>
+      <div class="wa-msg" onclick="openWA(this.querySelector('.wa-text').textContent)">
+        <div class="wa-from">🚚 In Transit</div>
+        <div class="wa-text">🚚 Hello [NAME]!
+Your parcel is on the way!
+📦 Article No: [ARTICLE]
+Track live: indiapost.gov.in
+Expected: [DATE]
+Stay home — it's coming soon! 😊</div>
+        <span class="wa-copy-hint">👆 Click to Send</span>
+      </div>
+      <div class="wa-msg" onclick="openWA(this.querySelector('.wa-text').textContent)">
+        <div class="wa-from">✅ Delivered — Ask Confirmation</div>
+        <div class="wa-text">🎊 Hi [NAME]! Your parcel should have arrived!
+📦 Article: [ARTICLE]
+Please reply *"YES GOT IT"* to confirm you received it safely.
+If there is any issue, reply *"PROBLEM"* and we will help you immediately! 🙏</div>
+        <span class="wa-copy-hint">👆 Click to Send</span>
+      </div>
+      <div class="wa-msg" onclick="openWA(this.querySelector('.wa-text').textContent)">
+        <div class="wa-from">📍 Reminder — Reply Needed</div>
+        <div class="wa-text">🙏 Hi [NAME], just checking — did you receive your parcel?
+Article No: [ARTICLE]
+Please reply YES or NO so we can close your order. Thank you!</div>
+        <span class="wa-copy-hint">👆 Click to Send</span>
+      </div>
+      <div class="wa-msg" onclick="openWA(this.querySelector('.wa-text').textContent)">
+        <div class="wa-from">⚠️ Delay Notice</div>
+        <div class="wa-text">🙏 Dear [NAME], we are sorry — your parcel is slightly delayed.
+Article No: [ARTICLE]
+We are following up with India Post.
+New expected date: [DATE]
+Thank you for your patience! We will update you soon. 🙏</div>
+        <span class="wa-copy-hint">👆 Click to Send</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Settings -->
+<div id="page-settings" class="page">
+  <div class="topbar"><div><div class="topbar-title">⚙️ Settings</div><div class="topbar-sub">Business info & free deployment guide</div></div></div>
+  <div class="content">
+    <div class="card" style="border-left:4px solid var(--saffron);">
+      <div class="card-title">🤖 AI Photo Reading (Claude API)</div>
+      <p style="font-size:13px;color:var(--mid);margin-bottom:12px;">This lets the app automatically read handwritten or printed addresses from parcel photos. Get a free API key in 2 minutes.</p>
+      <div class="fg" style="margin-bottom:10px;">
+        <label>Anthropic API Key</label>
+        <input id="s-apikey" type="password" placeholder="sk-ant-api03-..." oninput="saveSetting('apiKey',this.value)" style="font-family:monospace;font-size:13px;">
+      </div>
+      <div style="background:var(--blue-pale);border-radius:10px;padding:12px;font-size:13px;color:#1E40AF;line-height:1.8;">
+        <b>How to get free API key:</b><br>
+        1. Open <a href="https://console.anthropic.com" target="_blank" style="color:var(--blue);font-weight:700;">console.anthropic.com</a><br>
+        2. Sign up free → Go to <b>API Keys</b><br>
+        3. Click <b>Create Key</b> → Copy it → Paste above<br>
+        4. ✅ Now photos auto-read name, phone, address!
+      </div>
+      <div id="apikey-status" style="margin-top:8px;font-size:12px;font-weight:700;"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">🏪 Your Business Details</div>
+      <div class="form-grid">
+        <div class="fg"><label>Business Name</label><input id="s-bizname" placeholder="My Parcel Shop" oninput="saveSetting('bizName',this.value)"></div>
+        <div class="fg"><label>Your Phone</label><input id="s-phone" placeholder="9876543210" oninput="saveSetting('bizPhone',this.value)"></div>
+        <div class="fg fg-full"><label>Business Address</label><textarea id="s-addr" placeholder="Your shop address..." oninput="saveSetting('bizAddr',this.value)"></textarea></div>
+        <div class="fg"><label>UPI ID</label><input id="s-upi" placeholder="yourname@upi" oninput="saveSetting('bizUpi',this.value)"></div>
+        <div class="fg"><label>GSTIN (optional)</label><input id="s-gst" placeholder="GST Number" oninput="saveSetting('bizGst',this.value)"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">💾 Data Backup</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn-primary" onclick="exportAll()">⬇️ Download Backup</button>
+        <button class="btn-secondary" onclick="document.getElementById('import-f').click()">⬆️ Restore Backup</button>
+        <input type="file" id="import-f" accept=".json" style="display:none" onchange="importAll(event)">
+        <button class="btn-red" onclick="nukeAll()">🗑️ Clear Everything</button>
+      </div>
+      <p style="font-size:12px;color:var(--muted);margin-top:10px;">💡 Export your data regularly! All data is stored in browser storage on this device. If you clear browser data, you will lose it — so take backup!</p>
+    </div>
+
+    <!-- FREE DEPLOY GUIDE -->
+    <div class="card" style="background:var(--ink);border:none;">
+      <div class="card-title" style="color:var(--saffron);font-size:17px;">🆓 Make This Website Live — FREE, Step by Step</div>
+
+      <!-- Method 1 - GitHub Pages -->
+      <div style="background:rgba(255,255,255,.06);border-radius:var(--radius-sm);padding:16px;margin-bottom:14px;border-left:3px solid var(--saffron);">
+        <div style="color:#fff;font-weight:700;font-size:14px;margin-bottom:12px;">🥇 Method 1: GitHub Pages (Best — Free Forever)</div>
+        <div style="color:rgba(255,255,255,.75);font-size:13px;line-height:2.1;">
+          <div>📥 <b style="color:#fff;">Step 1:</b> Right click on this page → <b style="color:var(--saffron);">"Save As"</b> → Save as <code style="background:rgba(255,255,255,.15);padding:1px 6px;border-radius:4px;font-size:12px;">index.html</code> on your computer</div>
+          <div>🌐 <b style="color:#fff;">Step 2:</b> Open <a href="https://github.com" target="_blank" style="color:var(--saffron2);text-decoration:none;">github.com</a> → Click <b style="color:var(--saffron);">Sign Up</b> → Create free account (use any email)</div>
+          <div>📁 <b style="color:#fff;">Step 3:</b> Click green <b style="color:var(--saffron);">"New"</b> button → Repository name: <code style="background:rgba(255,255,255,.15);padding:1px 6px;border-radius:4px;font-size:12px;">my-post-business</code> → Click "Create repository"</div>
+          <div>⬆️ <b style="color:#fff;">Step 4:</b> Click <b style="color:var(--saffron);">"uploading an existing file"</b> → Drag and drop your <code style="background:rgba(255,255,255,.15);padding:1px 6px;border-radius:4px;font-size:12px;">index.html</code> → Click green "Commit changes"</div>
+          <div>⚙️ <b style="color:#fff;">Step 5:</b> Click <b style="color:var(--saffron);">Settings</b> tab (top of repo) → Click <b style="color:var(--saffron);">Pages</b> (left menu) → Under "Source" select <b style="color:var(--saffron);">main</b> → Click Save</div>
+          <div>🎉 <b style="color:#fff;">Step 6:</b> Wait 2 minutes → Your site is LIVE at: <b style="color:var(--saffron2);">https://YOUR-NAME.github.io/my-post-business</b></div>
+        </div>
+        <div style="margin-top:10px;background:rgba(232,98,10,.2);border-radius:8px;padding:10px;font-size:12px;color:rgba(255,255,255,.9);">
+          ✅ This is completely free. No credit card. No expiry. Works on phone and computer.
+        </div>
+      </div>
+
+      <!-- Method 2 - Netlify -->
+      <div style="background:rgba(255,255,255,.06);border-radius:var(--radius-sm);padding:16px;margin-bottom:14px;border-left:3px solid #00C7B7;">
+        <div style="color:#fff;font-weight:700;font-size:14px;margin-bottom:12px;">🥈 Method 2: Netlify Drop (Easiest — 1 Minute)</div>
+        <div style="color:rgba(255,255,255,.75);font-size:13px;line-height:2.1;">
+          <div>📥 <b style="color:#fff;">Step 1:</b> Save this file as <code style="background:rgba(255,255,255,.15);padding:1px 6px;border-radius:4px;">index.html</code></div>
+          <div>🌐 <b style="color:#fff;">Step 2:</b> Open <a href="https://netlify.com/drop" target="_blank" style="color:#00C7B7;text-decoration:none;">netlify.com/drop</a></div>
+          <div>📁 <b style="color:#fff;">Step 3:</b> <b style="color:#00C7B7;">Drag and drop</b> your index.html file into the big box on the page</div>
+          <div>🎉 <b style="color:#fff;">Step 4:</b> Done! Your site goes live in seconds at a free URL like <b style="color:#00C7B7;">abc123.netlify.app</b></div>
+        </div>
+        <div style="margin-top:10px;background:rgba(0,199,183,.15);border-radius:8px;padding:10px;font-size:12px;color:rgba(255,255,255,.9);">
+          ✅ No account needed for basic use. Free custom URL available with free account.
+        </div>
+      </div>
+
+      <!-- Method 3 - Use offline -->
+      <div style="background:rgba(255,255,255,.06);border-radius:var(--radius-sm);padding:16px;border-left:3px solid #22C55E;">
+        <div style="color:#fff;font-weight:700;font-size:14px;margin-bottom:8px;">🥉 Method 3: Use Directly on Phone (No Internet Needed)</div>
+        <div style="color:rgba(255,255,255,.75);font-size:13px;line-height:2.0;">
+          <div>📲 Just save the <code style="background:rgba(255,255,255,.15);padding:1px 6px;border-radius:4px;">index.html</code> file on your phone</div>
+          <div>📂 Open it with Chrome browser → tap the file → it opens as a website!</div>
+          <div>✅ Works 100% offline. All data saved on your phone automatically.</div>
+          <div>📤 Share the file with anyone — they can use it too on their phone!</div>
+        </div>
+      </div>
+
+      <div style="margin-top:16px;padding:12px;background:rgba(255,255,255,.07);border-radius:8px;border:1px solid rgba(255,255,255,.1);">
+        <div style="color:rgba(255,255,255,.9);font-size:13px;font-weight:600;">❓ Need Help?</div>
+        <div style="color:rgba(255,255,255,.6);font-size:12px;margin-top:4px;">YouTube search: <b style="color:var(--saffron2);">"GitHub Pages website free hosting tutorial"</b> — there are many Hindi tutorials too!</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main><!-- end .main -->
+</div><!-- end .app -->
+
+<!-- ═══ ORDER DETAIL OVERLAY ═══ -->
+<div class="detail-overlay" id="detail-overlay">
+  <div class="detail-topbar no-print">
+    <button class="back-btn" onclick="closeDetail()">←</button>
+    <div>
+      <div class="detail-title" id="dt-name">Order Detail</div>
+      <div class="detail-sub" id="dt-sub">Loading...</div>
+    </div>
+    <div style="margin-left:auto;display:flex;gap:8px;">
+      <button class="btn-secondary no-print" onclick="printBill()" style="background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.15);color:#fff;">🖨️ Print Bill</button>
+    </div>
+  </div>
+  <div style="padding:20px;max-width:760px;margin:0 auto;" id="detail-content"></div>
+</div>
+
+<!-- ═══ TOAST ═══ -->
+<div class="toast" id="toast">✅ Saved!</div>
+
+<!-- ═══ MOBILE NAV ═══ -->
+<nav class="mobile-nav">
+  <button class="mn-item active" onclick="goPage('dashboard')"><span class="mn-item-icon">🏠</span>Home</button>
+  <button class="mn-item" onclick="goPage('new-order')"><span class="mn-item-icon">➕</span>New</button>
+  <button class="mn-item" onclick="goPage('orders')"><span class="mn-item-icon">📋</span>Orders</button>
+  <button class="mn-item" onclick="goPage('whatsapp')"><span class="mn-item-icon">💬</span>WhatsApp</button>
+  <button class="mn-item" onclick="goPage('settings')"><span class="mn-item-icon">⚙️</span>Settings</button>
+</nav>
+
+<script>
+// ═══════════════════════════════════════════
+//  DATA LAYER
+// ═══════════════════════════════════════════
+function db(k){try{return JSON.parse(localStorage.getItem(k))||[];}catch{return [];}}
+function dbSet(k,v){localStorage.setItem(k,JSON.stringify(v));}
+function dbObj(k){try{return JSON.parse(localStorage.getItem(k))||{};}catch{return {};}}
+function uid(){return Date.now()+Math.random().toString(36).slice(2,6);}
+
+let orders = db('orders');
+let settings = dbObj('settings');
+let currentOrderId = null;
+let cameraStream = null;
+
+// ═══════════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════════
+function goPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.mn-item').forEach(b=>b.classList.remove('active'));
+  const pg = document.getElementById('page-'+name);
+  if(pg) pg.classList.add('active');
+  const pageMap={'dashboard':0,'new-order':1,'orders':2,'whatsapp':3,'settings':4};
+  const idx = pageMap[name];
+  if(idx!==undefined){
+    document.querySelectorAll('.nav-item')[idx]?.classList.add('active');
+    document.querySelectorAll('.mn-item')[idx]?.classList.add('active');
+  }
+  if(name==='dashboard') renderDashboard();
+  if(name==='orders') renderOrdersList();
+  if(name==='settings') loadSettings();
+}
+
+// ═══════════════════════════════════════════
+//  DASHBOARD
+// ═══════════════════════════════════════════
+function renderDashboard(){
+  orders = db('orders');
+  const d = new Date();
+  document.getElementById('today-str').textContent = d.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('ds-total').textContent = orders.length;
+  document.getElementById('ds-transit').textContent = orders.filter(o=>['dispatched','in-transit'].includes(o.status)).length;
+  document.getElementById('ds-delivered').textContent = orders.filter(o=>['delivered','confirmed'].includes(o.status)).length;
+  const rev = orders.reduce((s,o)=>(s+Number(o.totalAmount||0)),0);
+  document.getElementById('ds-revenue').textContent = '₹'+rev.toLocaleString('en-IN');
+  document.getElementById('sb-count').textContent = orders.length;
+  document.getElementById('orders-count-str').textContent = orders.length + ' orders';
+
+  // Needs Action
+  const actionList = document.getElementById('needs-action-list');
+  const needsAction = orders.filter(o=>o.status==='new'||o.status==='packed'||(o.status==='dispatched'&&!o.articleNumber));
+  if(needsAction.length===0){
+    actionList.innerHTML = '<div class="empty"><div class="empty-icon">🎉</div><div class="empty-title">All caught up!</div><div class="empty-sub">No pending actions.</div></div>';
+  } else {
+    actionList.innerHTML = needsAction.map(o=>`
+      <div class="order-card ${o.status}" onclick="openDetail('${o.id}')">
+        <div class="oc-top">
+          <div><div class="oc-name">${o.customerName}</div><div class="oc-phone">📞 ${o.customerPhone}</div></div>
+          <div style="text-align:right;">
+            ${statusAction(o)}
+          </div>
+        </div>
+      </div>`).join('');
+  }
+
+  // Recent
+  const recent = [...orders].reverse().slice(0,5);
+  document.getElementById('recent-list').innerHTML = recent.length?recent.map(orderCard).join('') :
+    '<div class="empty"><div class="empty-icon">📭</div><div class="empty-title">No orders yet</div></div>';
+}
+
+function statusAction(o){
+  if(o.status==='new') return `<span class="badge bg-new">📋 Need to Pack</span>`;
+  if(o.status==='packed') return `<span class="badge bg-packed">📷 Go to Post Office</span>`;
+  if(o.status==='dispatched') return `<span class="badge bg-dispatched">🚚 In Transit</span>`;
+  if(o.status==='delivered') return `<span class="badge bg-delivered">✅ Confirm Receipt</span>`;
+  if(o.status==='confirmed') return `<span class="badge bg-confirmed">🎉 Done</span>`;
+  return '';
+}
+
+function statusBadge(s){
+  const m={'new':'bg-new','packed':'bg-packed','dispatched':'bg-dispatched','delivered':'bg-delivered','confirmed':'bg-confirmed'};
+  const l={'new':'📋 New','packed':'📦 Packed','dispatched':'🚚 Dispatched','delivered':'✅ Delivered','confirmed':'🎉 Confirmed'};
+  return `<span class="badge ${m[s]||'bg-new'}">${l[s]||s}</span>`;
+}
+
+function orderCard(o){
+  const steps = ['new','packed','dispatched','delivered','confirmed'];
+  const ci = steps.indexOf(o.status);
+  return `<div class="order-card ${o.status}" onclick="openDetail('${o.id}')">
+    <div class="oc-top">
+      <div>
+        <div class="oc-name">${o.customerName}</div>
+        <div class="oc-phone">📞 ${o.customerPhone}</div>
+        ${o.articleNumber?`<div class="oc-article">📮 ${o.articleNumber}</div>`:''}
+      </div>
+      <div style="text-align:right;">
+        ${statusBadge(o.status)}
+        <div class="oc-amount" style="margin-top:6px;">₹${Number(o.totalAmount||0).toLocaleString('en-IN')}</div>
+        <div class="oc-date">${o.orderDate||''}</div>
+      </div>
+    </div>
+    <div class="oc-steps">
+      ${['Order','Packed','Dispatched','Delivered','Confirmed'].map((s,i)=>
+        `<span class="step-chip ${i<ci?'done':i===ci?'current':''}">${i<ci?'✓ ':''} ${s}</span>`
+      ).join('')}
+    </div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════
+//  CREATE ORDER
+// ═══════════════════════════════════════════
+function createOrder(){
+  const name = document.getElementById('no-name').value.trim();
+  const phone = document.getElementById('no-phone').value.trim();
+  const addr = document.getElementById('no-addr').value.trim();
+  if(!name||!phone||!addr){showToast('Please fill Name, Phone and Address!','error');return;}
+  const itemCost = Number(document.getElementById('no-item-cost').value)||0;
+  const extra = Number(document.getElementById('no-extra').value)||0;
+  const order = {
+    id: uid(),
+    customerName: name,
+    customerPhone: phone,
+    customerAddress: addr,
+    requirement: document.getElementById('no-req').value.trim(),
+    customerPhoto: newOrderPhotoData,
+    itemCost, extra,
+    postAmount: 0,
+    totalAmount: itemCost + extra,
+    status: 'new',
+    articleNumber: '',
+    parcelPhoto: '',
+    receiptPhoto: '',
+    orderDate: new Date().toLocaleDateString('en-IN'),
+    dispatchDate: '',
+    expectedDate: '',
+    notes: '',
+    msgLogs: []
+  };
+  orders = db('orders');
+  orders.push(order);
+  dbSet('orders', orders);
+  // Reset form
+  ['no-name','no-phone','no-addr','no-req','no-item-cost','no-extra'].forEach(id=>{
+    const el=document.getElementById(id); if(el){el.value=''; el.style.borderColor='';}
+  });
+  newOrderPhotoData = '';
+  const wrap = document.getElementById('no-photo-preview-wrap'); if(wrap) wrap.style.display='none';
+  const preview = document.getElementById('no-total-preview'); if(preview) preview.style.display='none';
+  const notice = document.getElementById('no-autofill-notice'); if(notice) notice.style.display='none';
+  stopNewOrderCam();
+  showToast('✅ Order created!','success');
+  openDetail(order.id);
+}
+
+// ═══════════════════════════════════════════
+//  ORDER DETAIL
+// ═══════════════════════════════════════════
+function openDetail(id){
+  currentOrderId = id;
+  orders = db('orders');
+  const o = orders.find(x=>x.id===id);
+  if(!o) return;
+  document.getElementById('dt-name').textContent = o.customerName;
+  document.getElementById('dt-sub').textContent = '📞 '+o.customerPhone+' • '+statusBadge(o.status).replace(/<[^>]+>/g,'');
+  renderDetailContent(o);
+  document.getElementById('detail-overlay').classList.add('open');
+  document.getElementById('detail-overlay').scrollTop = 0;
+}
+
+function closeDetail(){
+  if(cameraStream){cameraStream.getTracks().forEach(t=>t.stop());cameraStream=null;}
+  document.getElementById('detail-overlay').classList.remove('open');
+  renderDashboard();
+  renderOrdersList();
+}
+
+function renderDetailContent(o){
+  const steps = ['new','packed','dispatched','delivered','confirmed'];
+  const ci = steps.indexOf(o.status);
+
+  let html = `
+  <!-- Pipeline -->
+  <div class="card" style="margin-bottom:16px;">
+    <div class="pipeline-wrap">
+      <div class="pipeline">
+        ${['📋 Order','📦 Packed','🚚 Dispatched','✅ Delivered','🎉 Confirmed'].map((s,i)=>`
+          <div class="step">
+            <div class="step-dot ${i<ci?'done':i===ci?'active':''}">
+              ${i<ci?'✓':i+1}
+              <span class="step-label ${i<ci?'done-lbl':i===ci?'active-lbl':''}">${s}</span>
+            </div>
+            ${i<4?`<div class="step-line ${i<ci?'done':''}"></div>`:''}
+          </div>`).join('')}
+      </div>
+    </div>
+  </div>
+
+  <!-- Customer Info -->
+  <div class="card">
+    <div class="card-title">👤 Customer</div>
+    ${o.customerPhoto?`<div style="float:right;margin-left:14px;margin-bottom:8px;"><img src="${o.customerPhoto}" style="width:80px;height:80px;object-fit:cover;border-radius:var(--radius-sm);border:2px solid var(--border);" alt="Item photo"></div>`:''}
+    <div class="form-grid">
+      <div><div style="font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;">Name</div><div style="font-weight:700;font-size:15px;">${o.customerName}</div></div>
+      <div><div style="font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;">Phone</div><div style="font-weight:700;font-size:15px;"><a href="tel:${o.customerPhone}" style="color:var(--blue);">${o.customerPhone}</a></div></div>
+      <div class="fg-full"><div style="font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;">Address</div><div style="font-size:14px;margin-top:3px;">${o.customerAddress}</div></div>
+      ${o.requirement?`<div class="fg-full"><div style="font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;">Order Requirements</div><div style="font-size:14px;background:var(--amber-pale);padding:8px 12px;border-radius:8px;margin-top:4px;">${o.requirement}</div></div>`:''}
+    </div>
+  </div>`;
+
+  // ─── STEP 1: Pack & Photo ───
+  const step1Done = o.status !== 'new';
+  html += `<div class="wf-step">
+    <div class="wf-header" onclick="toggleWF('wf1')">
+      <div style="display:flex;align-items:center;">
+        <div class="wf-step-num ${step1Done?'done':o.status==='new'?'active':''}">${step1Done?'✓':'1'}</div>
+        <div class="wf-title" style="margin-left:10px;">📦 Step 1 — Pack Parcel & Take Photo</div>
+      </div>
+      <span style="color:var(--muted);font-size:18px;" id="wf1-arrow">▼</span>
+    </div>
+    <div class="wf-body ${o.status==='new'?'open':''}" id="wf1-body">
+      <p style="font-size:13px;color:var(--mid);margin-bottom:14px;">Pack the parcel properly. Then take a clear photo of the packed parcel and click "Done Packing".</p>
+      ${o.parcelPhoto?`<img src="${o.parcelPhoto}" style="width:100%;max-height:200px;object-fit:contain;border-radius:8px;border:1px solid var(--border);margin-bottom:10px;" id="parcel-photo-prev">`:
+        `<img style="display:none;width:100%;max-height:200px;object-fit:contain;border-radius:8px;border:1px solid var(--border);margin-bottom:10px;" id="parcel-photo-prev">`}
+      <div class="photo-upload" id="pack-upload-area">
+        <input type="file" accept="image/*" id="pack-photo-input" onchange="handleParcelPhoto(event)">
+        <div class="pu-icon">📷</div>
+        <div class="pu-title">${o.parcelPhoto?'Change Parcel Photo':'Click to upload / take photo of parcel'}</div>
+        <div class="pu-sub">Or use camera button below</div>
+      </div>
+      <div style="text-align:center;margin-top:10px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+        <button class="btn-secondary no-print" onclick="startCam('parcel-cam','parcel-photo-prev','handleParcelCam')">📷 Use Camera</button>
+        ${!step1Done?`<button class="btn-primary no-print" onclick="markPacked()">✅ Done Packing →</button>`:''}
+      </div>
+      <video id="parcel-cam" autoplay playsinline style="display:none;width:100%;border-radius:8px;margin-top:10px;"></video>
+      <div style="text-align:center;"><button id="parcel-cam-capture" style="display:none;" class="btn-primary" onclick="captureCam('parcel-cam','parcel-cam-capture','parcel-cam-stop','handleParcelCam')">🔴 Capture</button>
+      <button id="parcel-cam-stop" style="display:none;" class="btn-red" onclick="stopCam('parcel-cam','parcel-cam-capture','parcel-cam-stop')">⏹ Stop</button></div>
+    </div>
+  </div>`;
+
+  // ─── STEP 2: Post Office Receipt ───
+  const step2Done = ['dispatched','delivered','confirmed'].includes(o.status);
+  html += `<div class="wf-step">
+    <div class="wf-header" onclick="toggleWF('wf2')">
+      <div style="display:flex;align-items:center;">
+        <div class="wf-step-num ${step2Done?'done':o.status==='packed'?'active':''}">${step2Done?'✓':'2'}</div>
+        <div class="wf-title" style="margin-left:10px;">🏣 Step 2 — Post Office Receipt & Article Number</div>
+      </div>
+      <span style="color:var(--muted);font-size:18px;" id="wf2-arrow">▼</span>
+    </div>
+    <div class="wf-body ${o.status==='packed'?'open':''}" id="wf2-body">
+      <p style="font-size:13px;color:var(--mid);margin-bottom:14px;">After paying at post office — take photo of the receipt. We will automatically read the Article Number. Then enter the amount paid.</p>
+      ${o.receiptPhoto?`<img src="${o.receiptPhoto}" style="width:100%;max-height:200px;object-fit:contain;border-radius:8px;border:1px solid var(--border);margin-bottom:10px;" id="receipt-photo-prev">`:
+        `<img style="display:none;width:100%;max-height:200px;object-fit:contain;border-radius:8px;border:1px solid var(--border);margin-bottom:10px;" id="receipt-photo-prev">`}
+      
+      <div class="photo-upload" id="receipt-upload-area">
+        <input type="file" accept="image/*" id="receipt-photo-input" onchange="handleReceiptPhoto(event)">
+        <div class="pu-icon">🧾</div>
+        <div class="pu-title">${o.receiptPhoto?'Change Receipt Photo':'Click to upload post office receipt'}</div>
+        <div class="pu-sub">AI will auto-read the Article Number</div>
+      </div>
+      <div style="text-align:center;margin-top:10px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;" class="no-print">
+        <button class="btn-secondary" onclick="startCam('receipt-cam','receipt-photo-prev','handleReceiptCam')">📷 Camera</button>
+      </div>
+      <video id="receipt-cam" autoplay playsinline style="display:none;width:100%;border-radius:8px;margin-top:10px;"></video>
+      <div style="text-align:center;"><button id="receipt-cam-capture" style="display:none;" class="btn-primary" onclick="captureCam('receipt-cam','receipt-cam-capture','receipt-cam-stop','handleReceiptCam')">🔴 Capture</button>
+      <button id="receipt-cam-stop" style="display:none;" class="btn-red" onclick="stopCam('receipt-cam','receipt-cam-capture','receipt-cam-stop')">⏹ Stop</button></div>
+      
+      <div class="ocr-bar" id="ocr-bar"><div class="ocr-fill" id="ocr-fill"></div></div>
+      <div class="ocr-msg" id="ocr-msg"></div>
+
+      <div class="form-grid" style="margin-top:14px;">
+        <div class="fg">
+          <label>Article / Tracking Number *</label>
+          <input id="d-article" type="text" placeholder="EW123456789IN" value="${o.articleNumber||''}" style="font-weight:700;font-family:monospace;font-size:15px;text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()">
+        </div>
+        <div class="fg">
+          <label>Amount Paid at Post Office (₹)</label>
+          <input id="d-postamt" type="number" placeholder="0" value="${o.postAmount||0}">
+        </div>
+        <div class="fg">
+          <label>Item Cost (₹)</label>
+          <input id="d-itemcost" type="number" placeholder="0" value="${o.itemCost||0}" oninput="recalcTotal()">
+        </div>
+        <div class="fg">
+          <label>Extra/Packing (₹)</label>
+          <input id="d-extra" type="number" placeholder="0" value="${o.extra||0}" oninput="recalcTotal()">
+        </div>
+        <div class="fg">
+          <label>Total Amount Customer Pays (₹)</label>
+          <input id="d-total" type="number" placeholder="0" value="${o.totalAmount||0}" style="font-weight:800;font-size:16px;color:var(--saffron);">
+        </div>
+        <div class="fg">
+          <label>Expected Delivery Date</label>
+          <input id="d-expdate" type="date" value="${o.expectedDate||''}">
+        </div>
+      </div>
+      ${!step2Done?`<div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;" class="no-print">
+        <button class="btn-primary" onclick="markDispatched()">🚀 Confirm Dispatch & Generate Bill</button>
+      </div>`:''}
+    </div>
+  </div>`;
+
+  // ─── STEP 3: BILL ───
+  const step3Visible = ['dispatched','delivered','confirmed'].includes(o.status);
+  if(step3Visible){
+    html += `<div class="wf-step">
+      <div class="wf-header" onclick="toggleWF('wf3')">
+        <div style="display:flex;align-items:center;">
+          <div class="wf-step-num done">✓</div>
+          <div class="wf-title" style="margin-left:10px;">🧾 Bill / Invoice</div>
+        </div>
+        <span style="color:var(--muted);font-size:18px;" id="wf3-arrow">▼</span>
+      </div>
+      <div class="wf-body open" id="wf3-body">${buildBill(o)}</div>
+    </div>`;
+  }
+
+  // ─── STEP 3: Track & WhatsApp ───
+  html += `<div class="wf-step">
+    <div class="wf-header" onclick="toggleWF('wf4')">
+      <div style="display:flex;align-items:center;">
+        <div class="wf-step-num ${step2Done?'active':''}">📍</div>
+        <div class="wf-title" style="margin-left:10px;">🔍 Track Parcel & Send WhatsApp</div>
+      </div>
+      <span style="color:var(--muted);font-size:18px;" id="wf4-arrow">▼</span>
+    </div>
+    <div class="wf-body ${step2Done?'open':''}" id="wf4-body">
+      ${o.articleNumber?`
+      <div style="background:var(--blue-pale);border:1px solid #BFDBFE;border-radius:8px;padding:14px;margin-bottom:14px;text-align:center;">
+        <div style="font-size:12px;color:var(--mid);font-weight:700;text-transform:uppercase;">Article Number</div>
+        <div style="font-family:monospace;font-size:22px;font-weight:800;color:var(--blue);letter-spacing:2px;margin:6px 0;">${o.articleNumber}</div>
+        <button class="btn-primary no-print" onclick="trackOnIP('${o.articleNumber}')">🇮🇳 Track on India Post</button>
+        <button class="btn-secondary no-print" style="margin-left:8px;" onclick="copyText('${o.articleNumber}')">📋 Copy</button>
+      </div>`:'<p style="color:var(--muted);font-size:13px;">Add article number in Step 2 first.</p>'}
+      
+      <div style="font-weight:700;font-size:13px;color:var(--mid);text-transform:uppercase;letter-spacing:.5px;margin:12px 0 8px;">Send WhatsApp Update</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;" class="no-print">
+        <button class="btn-wa" onclick="sendWA('${o.id}','booked')">📦 Order Booked</button>
+        <button class="btn-wa" onclick="sendWA('${o.id}','transit')">🚚 In Transit</button>
+        <button class="btn-wa" onclick="sendWA('${o.id}','confirm')">✅ Ask Confirmation</button>
+      </div>
+      <div style="margin-top:12px;font-size:12px;color:var(--muted);">Messages sent: ${(o.msgLogs||[]).length}</div>
+    </div>
+  </div>`;
+
+  // ─── STEP 4: Delivery Confirmation ───
+  const step4Done = o.status === 'confirmed';
+  html += `<div class="wf-step">
+    <div class="wf-header" onclick="toggleWF('wf5')">
+      <div style="display:flex;align-items:center;">
+        <div class="wf-step-num ${step4Done?'done':o.status==='delivered'?'active':''}">${step4Done?'✓':'5'}</div>
+        <div class="wf-title" style="margin-left:10px;">🎊 Customer Confirmation</div>
+      </div>
+      <span style="color:var(--muted);font-size:18px;" id="wf5-arrow">▼</span>
+    </div>
+    <div class="wf-body ${['delivered','confirmed'].includes(o.status)?'open':''}" id="wf5-body">
+      <p style="font-size:13px;color:var(--mid);margin-bottom:12px;">After India Post shows "Delivered", send the confirmation WhatsApp message. When customer replies "YES GOT IT", mark order as confirmed.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;" class="no-print">
+        ${o.status!=='confirmed'?`
+        <button class="btn-wa" onclick="sendWA('${o.id}','confirm')">💬 Ask "Did you receive it?"</button>
+        <button class="btn-green" onclick="markDelivered('${o.id}')">✅ Mark as Delivered</button>
+        <button class="btn-primary" onclick="markConfirmed('${o.id}')">🎉 Customer Said YES — Complete!</button>
+        `:`<div style="background:var(--green-pale);border:1px solid #BBF7D0;border-radius:8px;padding:14px;width:100%;text-align:center;"><div style="font-size:32px;">🎊</div><div style="font-family:'Poppins',sans-serif;font-weight:700;color:var(--green);">Order Completed!</div><div style="font-size:13px;color:var(--mid);margin-top:4px;">Customer confirmed receipt.</div></div>`}
+      </div>
+    </div>
+  </div>`;
+
+  // Delete
+  html += `<div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);text-align:right;" class="no-print">
+    <button class="btn-red" onclick="deleteOrder('${o.id}')">🗑️ Delete Order</button>
+  </div>`;
+
+  document.getElementById('detail-content').innerHTML = html;
+}
+
+function buildBill(o){
+  const biz = settings.bizName||'My Parcel Business';
+  const postAmt = Number(o.postAmount||0);
+  const itemCost = Number(o.itemCost||0);
+  const extra = Number(o.extra||0);
+  const total = Number(o.totalAmount||0);
+  return `<div class="bill" id="bill-printable">
+    <div class="bill-header">
+      <div>
+        <div class="bill-biz">${biz}</div>
+        <div class="bill-biz-sub">${settings.bizPhone||''}</div>
+        <div class="bill-biz-sub">${settings.bizAddr||''}</div>
+      </div>
+      <div class="bill-tag">
+        <div class="bill-tag-title">INVOICE</div>
+        <div class="bill-num">#${o.id.slice(-6).toUpperCase()}</div>
+        <div class="bill-num">${o.dispatchDate||o.orderDate}</div>
+      </div>
+    </div>
+    <hr class="bill-divider">
+    <div class="bill-to">
+      <div style="font-size:12px;color:var(--muted);text-transform:uppercase;font-weight:700;">Bill To</div>
+      <div class="bill-to-name">${o.customerName}</div>
+      <div style="font-size:13px;color:var(--mid);">📞 ${o.customerPhone}</div>
+      <div style="font-size:13px;color:var(--mid);margin-top:3px;">📍 ${o.customerAddress}</div>
+    </div>
+    ${(o.customerPhoto||o.parcelPhoto||o.receiptPhoto)?`<div class="bill-photos">
+      ${o.customerPhoto?`<div class="bill-photo-box"><div class="bill-photo-label">📸 Item / Customer Photo</div><img src="${o.customerPhoto}" alt="Item"></div>`:''}
+      ${o.parcelPhoto?`<div class="bill-photo-box"><div class="bill-photo-label">📦 Parcel Photo</div><img src="${o.parcelPhoto}" alt="Parcel"></div>`:''}
+      ${o.receiptPhoto?`<div class="bill-photo-box"><div class="bill-photo-label">🧾 Post Receipt</div><img src="${o.receiptPhoto}" alt="Receipt"></div>`:''}
+    </div>`:''}
+    ${o.articleNumber?`<div style="margin:12px 0;padding:10px 14px;background:var(--blue-pale);border-radius:8px;display:flex;align-items:center;gap:10px;"><span style="font-size:20px;">📮</span><div><div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted);">Article / Tracking Number</div><div class="bill-article">${o.articleNumber}</div></div></div>`:''}
+    <table class="bill-table">
+      <thead><tr><th>Description</th><th style="text-align:right;">Amount</th></tr></thead>
+      <tbody>
+        ${o.requirement?`<tr><td>${o.requirement}</td><td style="text-align:right;"></td></tr>`:''}
+        ${itemCost?`<tr><td>Item Cost</td><td style="text-align:right;">₹${itemCost.toLocaleString('en-IN')}</td></tr>`:''}
+        ${extra?`<tr><td>Packing / Extra</td><td style="text-align:right;">₹${extra.toLocaleString('en-IN')}</td></tr>`:''}
+        ${postAmt?`<tr><td>Postage (India Post)</td><td style="text-align:right;">₹${postAmt.toLocaleString('en-IN')}</td></tr>`:''}
+      </tbody>
+    </table>
+    <div class="bill-total">
+      <div class="bill-total-label">Total Amount Due</div>
+      <div class="bill-total-value">₹${total.toLocaleString('en-IN')}</div>
+    </div>
+    ${settings.bizUpi?`<div style="text-align:center;margin-top:12px;padding:10px;background:var(--green-pale);border-radius:8px;font-size:13px;font-weight:700;color:var(--green);">Pay via UPI: ${settings.bizUpi}</div>`:''}
+    <div class="bill-footer">Thank you for your business! 🙏 ${biz}</div>
+  </div>
+  <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;" class="no-print">
+    <button class="btn-primary" onclick="printBill()">🖨️ Print Bill</button>
+    <button class="btn-wa" onclick="sendBillWA('${o.id}')">💬 Share on WhatsApp</button>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════
+//  NEW ORDER — PHOTO + OCR AUTO-FILL
+// ═══════════════════════════════════════════
+let newOrderPhotoData = '';
+let newOrderCamStream = null;
+
+function handleNewOrderPhoto(event){
+  const file = event.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    showNewOrderPhoto(e.target.result);
+    runNewOrderOCR(file);
+  };
+  reader.readAsDataURL(file);
+}
+
+function showNewOrderPhoto(dataUrl){
+  newOrderPhotoData = dataUrl;
+  const preview = document.getElementById('no-photo-preview');
+  const wrap    = document.getElementById('no-photo-preview-wrap');
+  if(preview) preview.src = dataUrl;
+  if(wrap)    wrap.style.display = 'block';
+  const bar = document.getElementById('no-ocr-bar'); if(bar) bar.style.width='5%';
+  const msg = document.getElementById('no-ocr-msg'); if(msg) msg.textContent='Reading photo...';
+  const notice = document.getElementById('no-autofill-notice'); if(notice) notice.style.display='none';
+}
+
+function clearNewOrderPhoto(){
+  newOrderPhotoData = '';
+  const wrap = document.getElementById('no-photo-preview-wrap');
+  if(wrap) wrap.style.display='none';
+  ['no-name','no-phone','no-addr'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.style.borderColor='';
+  });
+}
+
+async function startNewOrderCam(){
+  try{
+    if(newOrderCamStream) newOrderCamStream.getTracks().forEach(t=>t.stop());
+    newOrderCamStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
+    const v = document.getElementById('no-cam-video');
+    v.srcObject = newOrderCamStream; v.style.display='block';
+    document.getElementById('no-cam-capture').style.display='inline-flex';
+    document.getElementById('no-cam-stop').style.display='inline-flex';
+  }catch(e){ showToast('Camera not available — please upload photo instead.','error'); }
+}
+
+function captureNewOrderCam(){
+  const v = document.getElementById('no-cam-video');
+  const c = document.createElement('canvas');
+  c.width=v.videoWidth; c.height=v.videoHeight;
+  c.getContext('2d').drawImage(v,0,0);
+  const dataUrl = c.toDataURL('image/jpeg',0.92);
+  stopNewOrderCam();
+  showNewOrderPhoto(dataUrl);
+  c.toBlob(b=>runNewOrderOCR(b),'image/jpeg',0.92);
+}
+
+function stopNewOrderCam(){
+  if(newOrderCamStream){ newOrderCamStream.getTracks().forEach(t=>t.stop()); newOrderCamStream=null; }
+  const v=document.getElementById('no-cam-video'); if(v) v.style.display='none';
+  const cap=document.getElementById('no-cam-capture'); if(cap) cap.style.display='none';
+  const stp=document.getElementById('no-cam-stop'); if(stp) stp.style.display='none';
+}
+
+// ── Convert any file/blob to base64 string ──
+function toBase64(fileOrBlob){
+  return new Promise((res,rej)=>{
+    const r = new FileReader();
+    r.onload  = ()=> res(r.result.split(',')[1]);
+    r.onerror = rej;
+    r.readAsDataURL(fileOrBlob);
+  });
+}
+
+// ── Claude AI Vision — reads handwritten & printed addresses perfectly ──
+async function runNewOrderOCR(fileOrBlob){
+  const bar  = document.getElementById('no-ocr-bar');
+  const msg  = document.getElementById('no-ocr-msg');
+  const icon = document.getElementById('no-ocr-icon');
+  if(!bar) return;
+
+  if(icon) icon.textContent = '🤖';
+  msg.textContent = 'Claude AI is reading the photo...';
+  bar.style.width = '20%';
+
+  // Animate bar while waiting for API
+  let pct = 20;
+  const ticker = setInterval(()=>{ pct = Math.min(pct+5, 85); bar.style.width=pct+'%'; }, 400);
+
+  try{
+    // Convert image to base64
+    const b64 = await toBase64(fileOrBlob);
+
+    // Detect mime type from file or default to jpeg
+    const mimeType = (fileOrBlob.type && fileOrBlob.type.startsWith('image/'))
+      ? fileOrBlob.type : 'image/jpeg';
+
+    // Get API key from settings
+    const cfg = dbObj('settings');
+    const apiKey = cfg.apiKey || '';
+    if(!apiKey){
+      clearInterval(ticker);
+      bar.style.width='0%';
+      if(icon) icon.textContent='🔑';
+      msg.textContent='No API key — go to ⚙️ Settings and add your Anthropic API key to enable photo reading.';
+      showApiKeyPrompt();
+      return;
+    }
+
+    // Call Claude API — it reads handwriting, printed text, rotated text, Tamil, Hindi etc.
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 300,
+        messages: [{
+          role: 'user',
+          content: [
+            {
+              type: 'image',
+              source: { type: 'base64', media_type: mimeType, data: b64 }
+            },
+            {
+              type: 'text',
+              text: `This is a parcel address label — it may be handwritten or printed, possibly rotated or sideways. 
+Read ALL the text carefully. Extract:
+- name: the recipient's full name
+- phone: 10-digit Indian mobile number (starting 6-9), or empty string if not found
+- address: full delivery address (street, city, state, pincode)
+
+Reply with ONLY valid JSON, no explanation:
+{"name":"...","phone":"...","address":"..."}`
+            }
+          ]
+        }]
+      })
+    });
+
+    clearInterval(ticker);
+    bar.style.width = '95%';
+
+    if(!response.ok){
+      throw new Error('API error: ' + response.status);
+    }
+
+    const data = await response.json();
+    const text = data.content?.[0]?.text || '';
+
+    // Parse JSON from Claude's reply
+    let result = {name:'', phone:'', address:''};
+    try{
+      // Strip any markdown code fences just in case
+      const clean = text.replace(/```json|```/gi,'').trim();
+      result = JSON.parse(clean);
+    }catch(e){
+      // If JSON parse fails, try regex fallback
+      const nm = text.match(/"name"\s*:\s*"([^"]+)"/);
+      const ph = text.match(/"phone"\s*:\s*"([^"]+)"/);
+      const ad = text.match(/"address"\s*:\s*"([^"]+)"/);
+      if(nm) result.name = nm[1];
+      if(ph) result.phone = ph[1];
+      if(ad) result.address = ad[1];
+    }
+
+    bar.style.width = '100%';
+    applyOCRResult(result);
+
+  }catch(e){
+    clearInterval(ticker);
+    console.error('Claude OCR error:', e);
+    bar.style.width = '0%';
+    if(icon) icon.textContent = '⚠️';
+    // Show helpful error
+    if(e.message && e.message.includes('401')){
+      msg.textContent = '🔑 API key needed — see instructions below.';
+      showApiKeyPrompt();
+    } else if(e.message && e.message.includes('fetch')){
+      msg.textContent = '📶 No internet — please type details manually below.';
+    } else {
+      msg.textContent = '⚠️ Could not read photo — please type details below.';
+    }
+  }
+}
+
+// ── Show API key setup instructions if not configured ──
+function showApiKeyPrompt(){
+  const notice = document.getElementById('no-autofill-notice');
+  if(notice){
+    notice.style.display = 'block';
+    notice.style.background = '#FEF2F2';
+    notice.style.borderColor = '#FCA5A5';
+    notice.style.color = '#991B1B';
+    notice.innerHTML = `🔑 <b>To enable AI photo reading:</b> Go to Settings tab → Enter your Anthropic API key. Get a free key at <a href="https://console.anthropic.com" target="_blank" style="color:#991B1B;">console.anthropic.com</a>`;
+  }
+}
+
+// ── Fill form fields from Claude's extracted result ──
+function applyOCRResult(result){
+  const msg    = document.getElementById('no-ocr-msg');
+  const icon   = document.getElementById('no-ocr-icon');
+  const notice = document.getElementById('no-autofill-notice');
+  let filled   = 0;
+
+  // Clean phone — keep only digits, take last 10
+  let phone = (result.phone||'').replace(/\D/g,'');
+  if(phone.startsWith('91') && phone.length===12) phone = phone.slice(2);
+  if(phone.length !== 10) phone = '';
+
+  if(result.name && result.name.length > 1){
+    const el = document.getElementById('no-name');
+    if(el && !el.value){ el.value = result.name.trim(); el.style.borderColor='var(--green)'; filled++; }
+  }
+  if(phone){
+    const el = document.getElementById('no-phone');
+    if(el && !el.value){ el.value = phone; el.style.borderColor='var(--green)'; filled++; }
+  }
+  if(result.address && result.address.length > 3){
+    const el = document.getElementById('no-addr');
+    if(el && !el.value){ el.value = result.address.trim(); el.style.borderColor='var(--green)'; filled++; }
+  }
+
+  if(filled > 0){
+    if(icon) icon.textContent = '✅';
+    if(msg)  msg.textContent  = `Auto-filled ${filled} field${filled>1?'s':''}! Check & correct if needed.`;
+    if(notice){ notice.style.display='block'; notice.style.background=''; notice.style.borderColor=''; notice.style.color=''; notice.innerHTML='✅ Details auto-filled from photo! Please check and correct if needed.'; }
+    showToast(`✅ Auto-filled ${filled} field${filled>1?'s':''} from photo!`,'success');
+  } else {
+    if(icon) icon.textContent = '⚠️';
+    if(msg)  msg.textContent  = 'Could not read clearly — please type the details below.';
+  }
+}
+
+function calcNewOrderTotal(){
+  const item  = Number(document.getElementById('no-item-cost')?.value)||0;
+  const extra = Number(document.getElementById('no-extra')?.value)||0;
+  const preview = document.getElementById('no-total-preview');
+  const display = document.getElementById('no-total-display');
+  if(preview) preview.style.display='flex';
+  if(display) display.textContent='₹'+(item+extra).toLocaleString('en-IN');
+}
+
+// ═══════════════════════════════════════════
+//  PHOTO HANDLING & OCR
+// ═══════════════════════════════════════════
+function handleParcelPhoto(event){
+  const file = event.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = document.getElementById('parcel-photo-prev');
+    img.src = e.target.result; img.style.display='block';
+    savePhotoToOrder('parcelPhoto', e.target.result);
+  };
+  reader.readAsDataURL(file);
+}
+
+function handleReceiptPhoto(event){
+  const file = event.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = document.getElementById('receipt-photo-prev');
+    img.src = e.target.result; img.style.display='block';
+    savePhotoToOrder('receiptPhoto', e.target.result);
+    runOCR(file);
+  };
+  reader.readAsDataURL(file);
+}
+
+function handleParcelCam(dataUrl){
+  const img = document.getElementById('parcel-photo-prev');
+  img.src = dataUrl; img.style.display='block';
+  savePhotoToOrder('parcelPhoto', dataUrl);
+}
+
+function handleReceiptCam(dataUrl){
+  const img = document.getElementById('receipt-photo-prev');
+  img.src = dataUrl; img.style.display='block';
+  savePhotoToOrder('receiptPhoto', dataUrl);
+  // OCR on blob
+  fetch(dataUrl).then(r=>r.blob()).then(b=>runOCR(b));
+}
+
+function savePhotoToOrder(field, dataUrl){
+  orders = db('orders');
+  const o = orders.find(x=>x.id===currentOrderId);
+  if(!o) return;
+  o[field] = dataUrl;
+  dbSet('orders', orders);
+}
+
+async function runOCR(fileOrBlob){
+  const bar = document.getElementById('ocr-bar');
+  const fill = document.getElementById('ocr-fill');
+  const msg = document.getElementById('ocr-msg');
+  if(!bar) return;
+  bar.style.display='block'; fill.style.width='0%';
+  msg.textContent = '🤖 Reading receipt...';
+  try {
+    const {createWorker} = Tesseract;
+    const worker = await createWorker('eng',1,{logger:m=>{
+      if(m.status==='recognizing text'){
+        const p=Math.round(m.progress*100);
+        fill.style.width=p+'%';
+        msg.textContent=`🔍 Reading... ${p}%`;
+      }
+    }});
+    const {data:{text}} = await worker.recognize(fileOrBlob);
+    await worker.terminate();
+    const num = extractArticle(text);
+    if(num){
+      const inp = document.getElementById('d-article');
+      if(inp){ inp.value=num; inp.style.borderColor='var(--green)'; }
+      msg.textContent = `✅ Found: ${num}`;
+      saveArticleNumber(num);
+      showToast('📮 Article number found: '+num,'success');
+    } else {
+      msg.textContent = '⚠️ Could not auto-read. Please type the article number manually.';
+    }
+  } catch(e){
+    if(msg) msg.textContent = '❌ Could not read image. Enter manually.';
+  }
+}
+
+function extractArticle(text){
+  const clean = text.replace(/\s/g,'').toUpperCase();
+  const patterns = [/[A-Z]{2}\d{9}IN/g, /[A-Z]{2}\d{9}[A-Z]{2}/g];
+  for(const p of patterns){
+    const m = clean.match(p);
+    if(m&&m.length) return m[0];
+  }
+  const prefixes=['EW','EM','RX','CX','CP','CD','EE','EC','EH','EP','EO','EU','EA','CJ','RP','PP'];
+  for(const p of prefixes){
+    const idx = clean.indexOf(p);
+    if(idx!==-1){
+      const c = clean.substring(idx,idx+13);
+      if(/^[A-Z]{2}\d{9}[A-Z]{2}$/.test(c)) return c;
+    }
+  }
+  return null;
+}
+
+function saveArticleNumber(num){
+  orders = db('orders');
+  const o = orders.find(x=>x.id===currentOrderId);
+  if(o){ o.articleNumber=num; dbSet('orders',orders); }
+}
+
+// ═══════════════════════════════════════════
+//  CAMERA
+// ═══════════════════════════════════════════
+async function startCam(videoId, previewId, cbName){
+  try{
+    if(cameraStream){cameraStream.getTracks().forEach(t=>t.stop());}
+    cameraStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
+    const v = document.getElementById(videoId);
+    v.srcObject=cameraStream; v.style.display='block';
+    const cap = document.getElementById(videoId.replace('-cam','-cam-capture'));
+    const stp = document.getElementById(videoId.replace('-cam','-cam-stop'));
+    if(cap){cap.style.display='inline-flex'; cap.dataset.cb=cbName; cap.dataset.vid=videoId; cap.dataset.prev=previewId;}
+    if(stp) stp.style.display='inline-flex';
+  }catch(e){showToast('Camera not available. Upload photo instead.','error');}
+}
+
+function captureCam(videoId, capId, stopId, cbName){
+  const v = document.getElementById(videoId);
+  const c = document.createElement('canvas');
+  c.width=v.videoWidth; c.height=v.videoHeight;
+  c.getContext('2d').drawImage(v,0,0);
+  const dataUrl = c.toDataURL('image/jpeg',0.85);
+  stopCam(videoId, capId, stopId);
+  if(cbName==='handleParcelCam') handleParcelCam(dataUrl);
+  if(cbName==='handleReceiptCam') handleReceiptCam(dataUrl);
+}
+
+function stopCam(videoId, capId, stopId){
+  if(cameraStream){cameraStream.getTracks().forEach(t=>t.stop()); cameraStream=null;}
+  const v = document.getElementById(videoId);
+  if(v) v.style.display='none';
+  const cap = document.getElementById(capId); if(cap) cap.style.display='none';
+  const stp = document.getElementById(stopId); if(stp) stp.style.display='none';
+}
+
+// ═══════════════════════════════════════════
+//  STATUS UPDATES
+// ═══════════════════════════════════════════
+function markPacked(){
+  orders = db('orders');
+  const o = orders.find(x=>x.id===currentOrderId);
+  if(!o) return;
+  o.status='packed';
+  dbSet('orders', orders);
+  showToast('📦 Marked as Packed!','success');
+  renderDetailContent(o);
+}
+
+function markDispatched(){
+  orders = db('orders');
+  const o = orders.find(x=>x.id===currentOrderId);
+  if(!o) return;
+  const article = document.getElementById('d-article')?.value.trim();
+  if(!article){showToast('Please enter Article Number first!','error');return;}
+  o.articleNumber = article;
+  o.postAmount = Number(document.getElementById('d-postamt')?.value)||0;
+  o.itemCost = Number(document.getElementById('d-itemcost')?.value)||o.itemCost||0;
+  o.extra = Number(document.getElementById('d-extra')?.value)||o.extra||0;
+  o.totalAmount = Number(document.getElementById('d-total')?.value)||o.totalAmount||0;
+  o.expectedDate = document.getElementById('d-expdate')?.value||'';
+  o.status = 'dispatched';
+  o.dispatchDate = new Date().toLocaleDateString('en-IN');
+  dbSet('orders', orders);
+  showToast('🚀 Dispatched! Bill ready.','success');
+  renderDetailContent(o);
+  // Auto WA
+  setTimeout(()=>sendWA(o.id,'booked'),800);
+}
+
+function markDelivered(id){
+  orders = db('orders');
+  const o = orders.find(x=>x.id==(id||currentOrderId));
+  if(!o) return;
+  o.status='delivered';
+  dbSet('orders', orders);
+  showToast('✅ Marked as Delivered!','success');
+  renderDetailContent(o);
+}
+
+function markConfirmed(id){
+  orders = db('orders');
+  const o = orders.find(x=>x.id==(id||currentOrderId));
+  if(!o) return;
+  o.status='confirmed';
+  dbSet('orders', orders);
+  showToast('🎉 Order Completed!','success');
+  renderDetailContent(o);
+}
+
+function recalcTotal(){
+  const item = Number(document.getElementById('d-itemcost')?.value)||0;
+  const extra = Number(document.getElementById('d-extra')?.value)||0;
+  const post = Number(document.getElementById('d-postamt')?.value)||0;
+  const tot = document.getElementById('d-total');
+  if(tot) tot.value = item+extra+post;
+}
+
+function deleteOrder(id){
+  // confirm() is blocked on many mobile browsers when running as a local file
+  // Use a custom in-app confirmation instead
+  const existing = document.getElementById('delete-confirm-popup');
+  if(existing) existing.remove();
+
+  const popup = document.createElement('div');
+  popup.id = 'delete-confirm-popup';
+  popup.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
+  popup.innerHTML = `
+    <div style="background:#fff;border-radius:18px;padding:28px 24px;max-width:340px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3);">
+      <div style="font-size:48px;margin-bottom:12px;">🗑️</div>
+      <div style="font-family:'Poppins',sans-serif;font-size:18px;font-weight:800;color:#0F172A;margin-bottom:8px;">Delete this order?</div>
+      <div style="font-size:13px;color:#64748B;margin-bottom:24px;">This cannot be undone. All data for this order will be permanently removed.</div>
+      <div style="display:flex;gap:10px;">
+        <button onclick="document.getElementById('delete-confirm-popup').remove()"
+          style="flex:1;padding:12px;border-radius:10px;border:1.5px solid #E2E8F0;background:#F8FAFC;font-weight:700;font-size:14px;cursor:pointer;font-family:'Nunito',sans-serif;color:#475569;">
+          Cancel
+        </button>
+        <button onclick="confirmDeleteOrder('${String(id)}')"
+          style="flex:1;padding:12px;border-radius:10px;border:none;background:#DC2626;color:#fff;font-weight:700;font-size:14px;cursor:pointer;font-family:'Nunito',sans-serif;">
+          🗑️ Yes, Delete
+        </button>
+      </div>
+    </div>`;
+  popup.addEventListener('click', e=>{ if(e.target===popup) popup.remove(); });
+  document.body.appendChild(popup);
+}
+
+function confirmDeleteOrder(id){
+  document.getElementById('delete-confirm-popup')?.remove();
+  // Convert both sides to string to avoid any type mismatch
+  const idStr = String(id);
+  orders = db('orders').filter(x => String(x.id) !== idStr);
+  dbSet('orders', orders);
+  closeDetail();
+  renderDashboard();
+  showToast('🗑️ Order deleted','success');
+}
+
+// ═══════════════════════════════════════════
+//  ORDERS LIST
+// ═══════════════════════════════════════════
+let currentFilter = 'all';
+function renderOrdersList(filter=''){
+  orders = db('orders');
+  document.getElementById('orders-count-str').textContent = orders.length+' orders';
+  document.getElementById('sb-count').textContent = orders.length;
+
+  // Filter chips
+  const chips = ['all','new','packed','dispatched','delivered','confirmed'];
+  document.getElementById('filter-chips').innerHTML = chips.map(c=>`
+    <button onclick="setFilter('${c}')" style="padding:6px 14px;border-radius:100px;border:1.5px solid ${c===currentFilter?'var(--saffron)':'var(--border)'};background:${c===currentFilter?'var(--saffron-pale)':'var(--white)'};color:${c===currentFilter?'var(--saffron)':'var(--mid)'};font-weight:700;font-size:12px;cursor:pointer;font-family:'Nunito',sans-serif;">
+      ${c==='all'?'All':c.charAt(0).toUpperCase()+c.slice(1)}
+      (${c==='all'?orders.length:orders.filter(o=>o.status===c).length})
+    </button>`).join('');
+
+  let list = [...orders].reverse();
+  if(currentFilter!=='all') list=list.filter(o=>o.status===currentFilter);
+  if(filter) list=list.filter(o=>
+    o.customerName.toLowerCase().includes(filter.toLowerCase())||
+    o.customerPhone.includes(filter)||
+    (o.articleNumber||'').toLowerCase().includes(filter.toLowerCase())
+  );
+
+  const el = document.getElementById('orders-list');
+  el.innerHTML = list.length ? list.map(orderCard).join('') : '<div class="empty"><div class="empty-icon">📭</div><div class="empty-title">No orders found</div></div>';
+}
+
+function setFilter(f){ currentFilter=f; renderOrdersList(); }
+function filterOrders(q){ renderOrdersList(q); }
+
+// ═══════════════════════════════════════════
+//  WHATSAPP
+// ═══════════════════════════════════════════
+function sendWA(orderId, type){
+  orders = db('orders');
+  const o = orders.find(x=>x.id===orderId);
+  if(!o) return;
+  const name = o.customerName;
+  const phone = o.customerPhone.replace(/\D/g,'');
+  const article = o.articleNumber||'[ARTICLE]';
+  const exp = o.expectedDate || 'in 4-5 days';
+  const total = '₹'+(o.totalAmount||0).toLocaleString('en-IN');
+  let msg = '';
+  if(type==='booked') msg=`🎉 Namaste ${name}!\nYour order has been booked at India Post!\n📮 Article No: *${article}*\n📍 Track: indiapost.gov.in\n⏰ Expected: ${exp}\n💰 Total Amount: ${total}\nThank you! 🙏`;
+  if(type==='transit') msg=`🚚 Hello ${name}!\nYour parcel is on the way!\n📮 Article: *${article}*\nTrack: indiapost.gov.in\nExpected: ${exp}\nStay home — coming soon! 😊`;
+  if(type==='confirm') msg=`🎊 Hi ${name}! Your parcel should have arrived!\n📮 Article: *${article}*\nPlease reply *"YES GOT IT"* to confirm.\nIf any issue, reply *"PROBLEM"* — we will help immediately! 🙏`;
+  const encoded = encodeURIComponent(msg);
+  const url = phone ? `https://wa.me/${phone.startsWith('91')?phone:'91'+phone}?text=${encoded}` : `https://wa.me/?text=${encoded}`;
+  window.open(url,'_blank');
+  // Log
+  o.msgLogs = o.msgLogs||[];
+  o.msgLogs.push({type, date:new Date().toLocaleDateString('en-IN')});
+  dbSet('orders', orders);
+}
+
+function sendBillWA(orderId){
+  orders = db('orders');
+  const o = orders.find(x=>x.id===orderId);
+  if(!o) return;
+  const phone = o.customerPhone.replace(/\D/g,'');
+  const msg = encodeURIComponent(`🧾 Your Invoice from ${settings.bizName||'My Shop'}!\n👤 ${o.customerName}\n📮 Article: *${o.articleNumber||'N/A'}*\n💰 Total: ₹${o.totalAmount||0}\n📅 Date: ${o.dispatchDate||o.orderDate}\nThank you! 🙏`);
+  window.open(`https://wa.me/${phone.startsWith('91')?phone:'91'+phone}?text=${msg}`,'_blank');
+}
+
+function openWA(text){
+  window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank');
+}
+
+function quickWA(type){
+  const phone = document.getElementById('wa-quick-phone').value.replace(/\D/g,'');
+  const name = document.getElementById('wa-quick-name').value||'Customer';
+  const track = document.getElementById('wa-quick-track').value||'[ARTICLE]';
+  const days = document.getElementById('wa-quick-days').value;
+  let msg='';
+  if(type==='dispatch') msg=`🎉 Namaste ${name}!\nOrder dispatched via India Post!\n📮 Article: *${track}*\n⏰ Expected: ${days} days\nTrack: indiapost.gov.in\nThank you! 🙏`;
+  if(type==='track') msg=`🚚 Hi ${name}! Your parcel update:\n📮 Article: *${track}*\nTrack live: indiapost.gov.in 📦`;
+  if(type==='confirm') msg=`🎊 Hi ${name}! Your parcel arrived!\n📮 Article: *${track}*\nPlease reply *"YES GOT IT"* to confirm! 🙏`;
+  const url = phone ? `https://wa.me/${phone.startsWith('91')?phone:'91'+phone}?text=${encodeURIComponent(msg)}` : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+  window.open(url,'_blank');
+}
+
+// ═══════════════════════════════════════════
+//  SETTINGS
+// ═══════════════════════════════════════════
+function saveSetting(k,v){ settings[k]=v; dbSet('settings',settings); }
+function loadSettings(){
+  settings = dbObj('settings');
+  const fieldMap = {bizName:'s-bizname', bizPhone:'s-phone', bizAddr:'s-addr', bizUpi:'s-upi', bizGst:'s-gst', apiKey:'s-apikey'};
+  Object.entries(fieldMap).forEach(([k,id])=>{
+    const el=document.getElementById(id); if(el) el.value=settings[k]||'';
+  });
+  const st = document.getElementById('apikey-status');
+  if(st) st.textContent = settings.apiKey ? '✅ API key saved — photo reading is active!' : '⚠️ No API key yet — photo reading disabled.';
+  if(st) st.style.color = settings.apiKey ? 'var(--green)' : 'var(--amber)';
+}
+
+// ═══════════════════════════════════════════
+//  UTILITIES
+// ═══════════════════════════════════════════
+function trackOnIP(num){
+  // Step 1 — copy to clipboard silently
+  if(navigator.clipboard){ navigator.clipboard.writeText(num).catch(()=>{}); }
+
+  // Remove any existing popup
+  const existing = document.getElementById('track-popup');
+  if(existing) existing.remove();
+
+  // The new India Post website URL — article number goes directly in the ?tlabels= query param
+  // This pre-fills the tracking box on their page
+  const trackURL = `https://www.indiapost.gov.in/_layouts/15/DOP.Portal.Tracking/TrackConsignment.aspx?tlabels=${encodeURIComponent(num)}`;
+  const homeURL  = `https://www.indiapost.gov.in/home`;
+  const smsText  = `POST TRACK ${num}`;
+
+  const popup = document.createElement('div');
+  popup.id = 'track-popup';
+  popup.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;overflow-y:auto;';
+  popup.innerHTML = `
+  <div style="background:#fff;border-radius:20px;padding:24px;max-width:480px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,.35);">
+
+    <!-- Header -->
+    <div style="text-align:center;margin-bottom:18px;">
+      <div style="font-size:42px;margin-bottom:8px;">📮</div>
+      <div style="font-family:'Poppins',sans-serif;font-size:20px;font-weight:800;color:#0F172A;">Track Your Parcel</div>
+      <div style="font-size:13px;color:#64748B;margin-top:4px;">Choose any method below</div>
+    </div>
+
+    <!-- Article Number Box -->
+    <div style="background:linear-gradient(135deg,#EFF6FF,#DBEAFE);border:2px solid #93C5FD;border-radius:14px;padding:14px;margin-bottom:18px;text-align:center;">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#3B82F6;letter-spacing:1px;margin-bottom:6px;">📋 Article Number — Auto Copied!</div>
+      <div style="font-family:monospace;font-size:24px;font-weight:800;color:#1D4ED8;letter-spacing:3px;word-break:break-all;">${num}</div>
+      <button onclick="navigator.clipboard.writeText('${num}').then(()=>{this.textContent='✅ Copied Again!';setTimeout(()=>this.textContent='📋 Copy Again',2000);})" style="margin-top:8px;background:rgba(29,78,216,.1);border:1px solid #93C5FD;color:#1D4ED8;padding:5px 14px;border-radius:100px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;">📋 Copy Again</button>
+    </div>
+
+    <!-- METHOD 1 — New Website (Recommended) -->
+    <div style="border:2px solid #FED7AA;border-radius:14px;padding:14px;margin-bottom:10px;background:#FFF7ED;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+        <span style="background:#E8620A;color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:100px;">RECOMMENDED</span>
+        <span style="font-weight:700;font-size:14px;color:#0F172A;">🌐 India Post New Website</span>
+      </div>
+      <div style="font-size:12px;color:#92400E;margin-bottom:10px;">Opens tracking page with your number pre-filled. Just enter CAPTCHA and click Search.</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button onclick="window.open('${trackURL}','_blank')" style="background:#E8620A;color:#fff;border:none;padding:10px 18px;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;font-family:'Nunito',sans-serif;flex:1;min-width:140px;">
+          🚀 Open &amp; Track Now
+        </button>
+        <button onclick="window.open('${homeURL}','_blank')" style="background:#FFF;color:#E8620A;border:2px solid #E8620A;padding:10px 18px;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;font-family:'Nunito',sans-serif;">
+          🏠 India Post Home
+        </button>
+      </div>
+    </div>
+
+    <!-- METHOD 2 — SMS (Works Without Internet) -->
+    <div style="border:2px solid #BBF7D0;border-radius:14px;padding:14px;margin-bottom:10px;background:#F0FDF4;">
+      <div style="font-weight:700;font-size:14px;color:#0F172A;margin-bottom:4px;">📱 Track by SMS — No Internet Needed!</div>
+      <div style="font-size:12px;color:#14532D;margin-bottom:8px;">Send this SMS to <b>166</b> or <b>51969</b> from any phone:</div>
+      <div style="background:#fff;border:1px solid #86EFAC;border-radius:8px;padding:10px 12px;font-family:monospace;font-size:14px;font-weight:700;color:#15803D;letter-spacing:.5px;word-break:break-all;">${smsText}</div>
+      <button onclick="if(navigator.clipboard){navigator.clipboard.writeText('${smsText}').then(()=>{this.textContent='✅ Copied!';setTimeout(()=>this.textContent='📋 Copy SMS Text',2000);})}" style="margin-top:8px;background:rgba(22,163,74,.1);border:1px solid #86EFAC;color:#15803D;padding:5px 12px;border-radius:100px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;">📋 Copy SMS Text</button>
+      <div style="font-size:11px;color:#6B7280;margin-top:6px;">Reply comes in 1-2 minutes. Works even on basic phones!</div>
+    </div>
+
+    <!-- METHOD 3 — Third Party (Instant, No CAPTCHA) -->
+    <div style="border:2px solid #DDD6FE;border-radius:14px;padding:14px;margin-bottom:16px;background:#F5F3FF;">
+      <div style="font-weight:700;font-size:14px;color:#0F172A;margin-bottom:4px;">⚡ Instant Track (No CAPTCHA)</div>
+      <div style="font-size:12px;color:#4C1D95;margin-bottom:8px;">Third party site — shows same India Post data, no captcha needed:</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button onclick="window.open('https://www.trackingmore.com/india-post-tracking?number=${encodeURIComponent(num)}','_blank')" style="background:#7C3AED;color:#fff;border:none;padding:9px 14px;border-radius:10px;font-weight:700;font-size:12px;cursor:pointer;font-family:'Nunito',sans-serif;flex:1;">
+          🔍 TrackingMore
+        </button>
+        <button onclick="window.open('https://trackspeedpost.in/?consignment=${encodeURIComponent(num)}','_blank')" style="background:#6D28D9;color:#fff;border:none;padding:9px 14px;border-radius:10px;font-weight:700;font-size:12px;cursor:pointer;font-family:'Nunito',sans-serif;flex:1;">
+          📦 SpeedPost Track
+        </button>
+      </div>
+    </div>
+
+    <!-- HOW TO USE - India Post Step Guide -->
+    <div style="background:#F8FAFC;border-radius:12px;padding:14px;margin-bottom:14px;border:1px solid #E2E8F0;">
+      <div style="font-size:12px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">📘 How to use India Post website</div>
+      <div style="display:flex;flex-direction:column;gap:7px;">
+        <div style="display:flex;gap:10px;align-items:flex-start;">
+          <div style="width:22px;height:22px;background:#E8620A;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:800;font-size:11px;flex-shrink:0;">1</div>
+          <div style="font-size:12px;color:#374151;">Click <b>"🚀 Open &amp; Track Now"</b> above — website opens with your article number already filled</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;">
+          <div style="width:22px;height:22px;background:#E8620A;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:800;font-size:11px;flex-shrink:0;">2</div>
+          <div style="font-size:12px;color:#374151;">Look for <b>CAPTCHA</b> box — type the letters/numbers you see in the image</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;">
+          <div style="width:22px;height:22px;background:#E8620A;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:800;font-size:11px;flex-shrink:0;">3</div>
+          <div style="font-size:12px;color:#374151;">Click <b>Search</b> → See full tracking history!</div>
+        </div>
+      </div>
+      <div style="margin-top:8px;background:#FFF7ED;border-radius:8px;padding:8px 10px;font-size:11px;color:#92400E;border-left:3px solid #F97316;">
+        ⚠️ <b>If website doesn't open:</b> Try SMS method above — it's faster and always works!
+      </div>
+    </div>
+
+    <button onclick="document.getElementById('track-popup').remove()" style="width:100%;background:#F1F5F9;color:#64748B;border:none;padding:12px;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;font-family:'Nunito',sans-serif;">
+      ✕ Close
+    </button>
+  </div>`;
+
+  popup.addEventListener('click', e=>{ if(e.target===popup) popup.remove(); });
+  document.body.appendChild(popup);
+}
+
+function copyText(t){
+  navigator.clipboard.writeText(t).then(()=>showToast('Copied: '+t,'success'));
+}
+
+function printBill(){
+  window.print();
+}
+
+function toggleWF(id){
+  const body = document.getElementById(id+'-body');
+  const arrow = document.getElementById(id+'-arrow');
+  if(!body) return;
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open',!isOpen);
+  if(arrow) arrow.textContent = isOpen?'▼':'▲';
+}
+
+function showToast(msg, type='success'){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className='toast show '+type;
+  setTimeout(()=>t.className='toast',3000);
+}
+
+function exportAll(){
+  const data={orders:db('orders'),settings:dbObj('settings'),exportedAt:new Date().toISOString()};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download=`mypost-backup-${new Date().toLocaleDateString('en-IN').replace(/\//g,'-')}.json`; a.click();
+}
+
+function importAll(event){
+  const file=event.target.files[0]; if(!file) return;
+  const r=new FileReader();
+  r.onload=e=>{try{
+    const d=JSON.parse(e.target.result);
+    if(d.orders) dbSet('orders',d.orders);
+    if(d.settings) dbSet('settings',d.settings);
+    showToast(`Imported ${d.orders?.length||0} orders!`,'success');
+    renderDashboard();
+  }catch{showToast('Invalid backup file!','error');}};
+  r.readAsText(file);
+}
+
+function nukeAll(){
+  const existing = document.getElementById('delete-confirm-popup');
+  if(existing) existing.remove();
+  const popup = document.createElement('div');
+  popup.id = 'delete-confirm-popup';
+  popup.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
+  popup.innerHTML = `
+    <div style="background:#fff;border-radius:18px;padding:28px 24px;max-width:340px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3);">
+      <div style="font-size:48px;margin-bottom:12px;">⚠️</div>
+      <div style="font-family:'Poppins',sans-serif;font-size:18px;font-weight:800;color:#DC2626;margin-bottom:8px;">Clear ALL Data?</div>
+      <div style="font-size:13px;color:#64748B;margin-bottom:8px;">This will delete <b>every order and customer</b>. This cannot be undone!</div>
+      <div style="background:#FEF2F2;border-radius:8px;padding:10px;font-size:12px;color:#DC2626;font-weight:700;margin-bottom:20px;">💡 Please download backup first!</div>
+      <div style="display:flex;gap:10px;">
+        <button onclick="document.getElementById('delete-confirm-popup').remove()"
+          style="flex:1;padding:12px;border-radius:10px;border:1.5px solid #E2E8F0;background:#F8FAFC;font-weight:700;font-size:14px;cursor:pointer;font-family:'Nunito',sans-serif;color:#475569;">
+          Cancel
+        </button>
+        <button onclick="document.getElementById('delete-confirm-popup').remove();localStorage.clear();orders=[];settings={};renderDashboard();showToast('All data cleared','success');"
+          style="flex:1;padding:12px;border-radius:10px;border:none;background:#DC2626;color:#fff;font-weight:700;font-size:14px;cursor:pointer;font-family:'Nunito',sans-serif;">
+          Delete Everything
+        </button>
+      </div>
+    </div>`;
+  popup.addEventListener('click', e=>{ if(e.target===popup) popup.remove(); });
+  document.body.appendChild(popup);
+}
+
+renderDashboard();
+document.getElementById('today-str').textContent = new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+</script>
+</body>
+</html>
